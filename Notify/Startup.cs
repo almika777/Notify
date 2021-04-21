@@ -1,64 +1,37 @@
+using System;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Notify
 {
     public class Startup : BackgroundService
     {
-        private readonly NotifyCache _cache;
-        private readonly ILogger<Startup> _logger;
-        private readonly TelegramBotClient _bot = new TelegramBotClient(Resource.TelegramToken);
+        private readonly IServiceProvider _serviceProvider;
 
-        public Startup(NotifyCache cache, ILogger<Startup> logger)
+        public Startup(IServiceProvider serviceProvider)
         {
-            _cache = cache;
-            _logger = logger;
+            _serviceProvider = serviceProvider;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _bot.OnMessage += BotOnOnMessage;
-            _bot.OnCallbackQuery += BotOnOnCallbackQuery;
-
-            _bot.StartReceiving();
+            using var scope = _serviceProvider.CreateScope();
+            var notifyService = scope.ServiceProvider.GetService<NotifyService>();
+            var bot = scope.ServiceProvider.GetService<TelegramBotClient>();
+            bot!.OnMessage += notifyService!.OnMessage;
+            bot.OnCallbackQuery += BotOnOnCallbackQuery;
+            bot.StartReceiving();
         }
 
         private void BotOnOnCallbackQuery(object? sender, CallbackQueryEventArgs e)
         {
 
 
-        }
-
-
-        private void BotOnOnMessage(object? sender, MessageEventArgs e)
-        {
-            if (e.Message.Text.Equals("/start")) ReplyToStart(e);
-
-            if (_cache.UserCurrentNotify.TryGetValue(e.Message.Chat.Id, out var model))
-            {
-                _bot.SendTextMessageAsync(e.Message.Chat.Id, model.GetNextStepMessage());
-                model.Update(e.Message.Text);
-                return;
-            }
-
-            var newModel = new NotifyModel().Update(e.Message.Text);
-            _bot.SendTextMessageAsync(e.Message.Chat.Id, newModel.GetNextStepMessage());
-            _cache.UserCurrentNotify.TryAdd(e.Message.Chat.Id, newModel);
-        }
-
-        private void ReplyToStart(MessageEventArgs e)
-        {
-            _bot.SendTextMessageAsync(e.Message.Chat.Id, 
-                $@"Привет, если ты вечно что-то забываешь, то я помогу тебе. 
-                {Environment.NewLine}Хочешь добавить напоминалку просто жми");
         }
     }
 }
