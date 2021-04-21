@@ -33,8 +33,11 @@ namespace Notify
 
                 notifications.AsParallel().ForAll(x =>
                 {
-                    bot.SendTextMessageAsync(x.Value.ChatId, x.Value.Name + x.Value.Date.Date.ToShortDateString());
-                    cache.ByDate.TryRemove(new KeyValuePair<DateTimeOffset, NotifyModel>(x.Key, x.Value));
+                    foreach (var notifyModel in x.Value)
+                    {
+                        bot.SendTextMessageAsync(notifyModel.ChatId, notifyModel.Name + notifyModel.Date);
+                        cache.ByDate.TryRemove(new KeyValuePair<DateTimeOffset, IEnumerable<NotifyModel>>(x.Key, x.Value));
+                    }
                 });
 
                 await Task.Delay(TimeSpan.FromSeconds(60));

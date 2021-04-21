@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Notify
 {
@@ -8,11 +9,11 @@ namespace Notify
     {
         private readonly ILogger<NotifyCache> _logger;
 
-        public readonly ConcurrentDictionary<long, NotifyModel> ByUser =
-            new ConcurrentDictionary<long, NotifyModel>();
+        public readonly ConcurrentDictionary<long, IEnumerable<NotifyModel>> ByUser =
+            new ConcurrentDictionary<long, IEnumerable<NotifyModel>>();
 
-        public readonly ConcurrentDictionary<DateTimeOffset, NotifyModel> ByDate =
-            new ConcurrentDictionary<DateTimeOffset, NotifyModel>();
+        public readonly ConcurrentDictionary<DateTimeOffset, IEnumerable<NotifyModel>> ByDate =
+            new ConcurrentDictionary<DateTimeOffset, IEnumerable<NotifyModel>>();
 
         public NotifyCache(ILogger<NotifyCache> logger)
         {

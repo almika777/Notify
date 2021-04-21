@@ -23,9 +23,9 @@ namespace Notify
         {
             if (e.Message.Text.Equals("/start")) ReplyToStart(e.Message.Chat.Id);
 
-            if (_cache.ByUser.TryGetValue(e.Message.Chat.Id, out var model))
+            if (_cache.ByUser.TryGetValue(e.Message.Chat.Id, out var models))
             {
-                UpdateNotify(model, e);
+                //UpdateNotify(model, e);
                 return;
             }
 
@@ -38,7 +38,7 @@ namespace Notify
             try
             {
                 model.Update(e.Message.Text);
-                if (model.State == NotifyState.Date) _cache.ByDate.TryAdd(model.Date, model);
+                //if (model.State == NotifyState.Date) _cache.ByDate.TryAdd(model.Date, model);
                 _bot.SendTextMessageAsync(e.Message.Chat.Id, model.GetNextStepMessage());
             }
             catch (Exception exception)
@@ -51,7 +51,7 @@ namespace Notify
         {
             var newModel = new NotifyModel { ChatId = e.Message.Chat.Id }.Update(e.Message.Text);
             _bot.SendTextMessageAsync(e.Message.Chat.Id, newModel.GetNextStepMessage());
-            _cache.ByUser.TryAdd(e.Message.Chat.Id, newModel);
+            //_cache.ByUser.TryAdd(e.Message.Chat.Id, newModel);
         }
 
         private void ReplyToStart(long chatId)
