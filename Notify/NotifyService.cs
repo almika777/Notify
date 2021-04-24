@@ -15,7 +15,7 @@ namespace Notify
         private readonly CommandRepository _commandRepository;
         private readonly ILogger<NotifyService> _logger;
 
-        public NotifyService(TelegramBotClient bot, INotifyIOHandler handler, NotifyCache cache, 
+        public NotifyService(TelegramBotClient bot, INotifyIOHandler handler, NotifyCache cache,
             CommandRepository commandRepository, ILogger<NotifyService> logger)
         {
             _bot = bot;
@@ -33,10 +33,10 @@ namespace Notify
 
         public void OnMessage(object? sender, MessageEventArgs e)
         {
-            switch (e.Message.Text)
+            if (_commandRepository.IsCommand(e.Message.Text))
             {
-                case "/start": _commandRepository.Execute(CommandType.ReplyToStart, e); return;
-                case "/show": _commandRepository.Execute(CommandType.ShowNotifications, e); return;
+                _commandRepository.Execute(e.Message.Text, e);
+                return;
             }
 
             try
