@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 
-namespace Notify
+namespace Notify.Workers
 {
     public class NotifyWorker : BackgroundService
     {

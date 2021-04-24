@@ -2,6 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Notify.Commands;
 using Notify.IO;
+using Notify.Services;
+using Notify.Workers;
 using Telegram.Bot;
 
 namespace Notify
@@ -25,7 +27,7 @@ namespace Notify
                     services.AddSingleton<NotifyCache>();
 
 
-                    services.AddHostedService<Startup>();
+                    services.AddHostedService<BotWorker>();
                     services.AddHostedService<NotifyWorker>();
                 });
     }

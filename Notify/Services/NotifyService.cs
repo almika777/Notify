@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.Logging;
 using Notify.Commands;
 using Notify.IO;
-using System;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
-namespace Notify
+namespace Notify.Services
 {
     public class NotifyService
     {

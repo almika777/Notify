@@ -1,18 +1,18 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Notify.Services;
 using Telegram.Bot;
-using Telegram.Bot.Args;
 
-namespace Notify
+namespace Notify.Workers
 {
-    public class Startup : BackgroundService
+    public class BotWorker : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public Startup(IServiceProvider serviceProvider)
+        public BotWorker(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }

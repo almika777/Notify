@@ -1,4 +1,4 @@
-﻿namespace Notify
+﻿namespace Notify.Common
 {
     public enum NotifyState
     {
