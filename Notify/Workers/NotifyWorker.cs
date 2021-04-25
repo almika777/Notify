@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Notify.Services;
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 
 namespace Notify.Workers
@@ -22,26 +22,36 @@ namespace Notify.Workers
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var scope = _serviceProvider.CreateScope();
-            var cache = scope.ServiceProvider.GetService<NotifyCache>()!;
+            var cache = scope.ServiceProvider.GetService<NotifyCacheService>()!;
             var bot = scope.ServiceProvider.GetService<TelegramBotClient>()!;
+
+            StartBot(scope, bot);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var notifications = cache.ByDate
-                    .Where(x => Math.Abs((x.Key - DateTimeOffset.Now).TotalMinutes) < 2)
+                var notifications = cache.ByUser
+                    .SelectMany(x => x.Value)
+                    .Where(x => Math.Abs((x.Date - DateTimeOffset.Now).TotalMinutes) < 2)
                     .ToImmutableArray();
 
                 notifications.AsParallel().ForAll(x =>
                 {
-                    foreach (var notifyModel in x.Value)
-                    {
-                        bot.SendTextMessageAsync(notifyModel.ChatId, notifyModel.Name + notifyModel.Date);
-                        cache.ByDate.TryRemove(new KeyValuePair<DateTimeOffset, IEnumerable<NotifyModel>>(x.Key, x.Value));
-                    }
+                    bot.SendTextMessageAsync(x.ChatId, x.ToString());
+                    cache.ByUser[x.ChatId].Remove(x);
                 });
 
                 await Task.Delay(TimeSpan.FromSeconds(60));
             }
+        }
+
+        private static void StartBot(IServiceScope scope, ITelegramBotClient bot)
+        {
+            var notifyService = scope.ServiceProvider.GetService<NotifyService>();
+
+            bot!.OnMessage += notifyService!.OnMessage;
+            bot.OnCallbackQuery += notifyService!.OnOnCallbackQuery;
+
+            bot.StartReceiving();
         }
     }
 }

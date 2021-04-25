@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Notify.Common;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

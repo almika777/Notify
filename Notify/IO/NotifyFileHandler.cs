@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using Notify.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -7,16 +9,21 @@ namespace Notify.IO
 {
     public class NotifyFileHandler : INotifyIOHandler
     {
-        private const string PartOfPath = "../../";
+        private readonly Configuration _config;
+
+        public NotifyFileHandler(IOptions<Configuration> config)
+        {
+            _config = config.Value;
+        }
         public async Task Write(NotifyModel model)
         {
-            await using var sw = new StreamWriter(Path.Combine(PartOfPath, $@"{model.ChatId}.txt"));
+            await using var sw = new StreamWriter(Path.Combine(_config.CacheFolder!, $@"{model.ChatId}.txt"));
             await sw.WriteLineAsync(model.ToString());
         }
 
         public async Task<IEnumerable<NotifyModel>> Read(long chatId)
         {
-            using var sr = new StreamReader(Path.Combine(PartOfPath, $@"{chatId}.txt"));
+            using var sr = new StreamReader(Path.Combine(_config.CacheFolder!, $@"{chatId}.txt"));
 
             var notifications = new List<NotifyModel>();
 

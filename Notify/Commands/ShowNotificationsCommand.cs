@@ -1,4 +1,5 @@
-﻿using Notify.IO;
+﻿using Notify.Common;
+using Notify.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,10 +13,10 @@ namespace Notify.Commands
 
     {
         private readonly INotifyIOHandler _handler;
-        private readonly NotifyCache _cache;
+        private readonly NotifyCacheService _cache;
         private readonly TelegramBotClient _bot;
 
-        public ShowNotificationsCommand(INotifyIOHandler handler, NotifyCache cache, TelegramBotClient bot)
+        public ShowNotificationsCommand(INotifyIOHandler handler, NotifyCacheService cache, TelegramBotClient bot)
         {
             _handler = handler;
             _cache = cache;
@@ -42,13 +43,11 @@ namespace Notify.Commands
             await _bot.SendTextMessageAsync(e.Message.Chat.Id, "Ваши напоминалки",
                 replyMarkup: new InlineKeyboardMarkup(buttons));
 
-            if(modelsInCacheExists)
+            if (modelsInCacheExists)
                 _cache.ByUser.TryAdd(e.Message.Chat.Id, models);
         }
 
         private async Task<IEnumerable<NotifyModel>> ReadFromFile(MessageEventArgs e)
-        {
-            return (await _handler.Read(e.Message.Chat.Id))?.ToList() ?? Enumerable.Empty<NotifyModel>();
-        }
+            => await _handler.Read(e.Message.Chat.Id);
     }
 }
