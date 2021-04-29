@@ -3,7 +3,6 @@
     public enum NotifyState
     {
         Name,
-        Date,
-        Ready
+        Date
     }
 }

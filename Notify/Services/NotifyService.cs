@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Notify.Commands;
+using Notify.Common;
 using Notify.Helpers;
 using Notify.IO;
 using System;
@@ -11,14 +12,19 @@ namespace Notify.Services
     public class NotifyService
     {
         private readonly TelegramBotClient _bot;
-        private readonly INotifyIOHandler _handler;
+        private readonly INotifyWriter _handler;
         private readonly NotifyCacheService _cache;
         private readonly OnMessageCommandRepository _messageCommandRepository;
         private readonly NotifyModifier _notifyModifier;
         private readonly ILogger<NotifyService> _logger;
 
-        public NotifyService(TelegramBotClient bot, INotifyIOHandler handler, NotifyCacheService cache,
-            OnMessageCommandRepository messageCommandRepository, NotifyModifier notifyModifier, ILogger<NotifyService> logger)
+        public NotifyService(
+            TelegramBotClient bot,
+            INotifyWriter handler,
+            NotifyCacheService cache,
+            OnMessageCommandRepository messageCommandRepository,
+            NotifyModifier notifyModifier,
+            ILogger<NotifyService> logger)
         {
             _bot = bot;
             _handler = handler;
@@ -49,16 +55,29 @@ namespace Notify.Services
                     ? _notifyModifier.Update(model!, e)
                     : _notifyModifier.Create(e);
 
-                _bot.SendTextMessageAsync(e.Message.Chat.Id, _notifyModifier.GetNextStepMessage(notifyModel));
-                _handler.Write(notifyModel);
 
-                var cacheIsUpdate = modelIsExist 
-                    ? _cache.TryRemove(notifyModel) 
-                    : _cache.InProgressNotifications.TryAdd(e.Message.Chat.Id, notifyModel);
+                switch (notifyModel!.CurrentState)
+                {
+                    case NotifyState.Date:
+                        _cache.TryRemoveFromCurrent(notifyModel);
+                        _cache.TryAddToMemory(notifyModel);
+                        _handler.Write(notifyModel);
+                        break;
+                    case NotifyState.Name:
+                        _cache.InProgressNotifications.TryAdd(e.Message.Chat.Id, notifyModel);
+                        break;
+                }
+
+                _bot.SendTextMessageAsync(e.Message.Chat.Id, _notifyModifier.GetNextStepMessage(notifyModel));
             }
             catch (FormatException exception)
             {
                 _bot.SendTextMessageAsync(e.Message.Chat.Id, exception.Message);
+                _logger.LogError("Чет не форматнулось", exception);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Чет поломалось");
             }
         }
     }

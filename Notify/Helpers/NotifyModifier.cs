@@ -8,13 +8,13 @@ namespace Notify.Helpers
     {
         public NotifyModel Create(MessageEventArgs e)
         {
-            var newModel = new NotifyModel {ChatId = e.Message.Chat.Id, NotifyId = Guid.NewGuid()};
-            return Update(newModel, e);
+            var model = new NotifyModel {ChatId = e.Message.Chat.Id, NotifyId = Guid.NewGuid(), Name = e.Message.Text};
+            return model;
         }
 
         public NotifyModel Update(NotifyModel model, MessageEventArgs e)
         {
-            switch (model.State)
+            switch (model.CurrentState)
             {
                 case NotifyState.Name:
                     model.Name = e.Message.Text; break;
@@ -23,16 +23,24 @@ namespace Notify.Helpers
                     break;
             }
 
-            model.UpdateState();
-            return model;
+            return UpdateState(model);
         }
 
-        public string GetNextStepMessage(NotifyModel model) => model.State switch
+        public string GetNextStepMessage(NotifyModel model) => model.CurrentState switch
         {
-            NotifyState.Name => "Введите повод",
-            NotifyState.Date => "Введите дату и время в формате 01.01.2021 00:00",
-            NotifyState.Ready => "Готово",
+            NotifyState.Name => "Введите дату и время в формате 01.01.2021 00:00",
+            NotifyState.Date => "Готово",
             _ => throw new ArgumentOutOfRangeException()
         };
+
+        private NotifyModel UpdateState(NotifyModel model)
+        {
+            model.CurrentState = model.CurrentState switch
+            {
+                NotifyState.Name => NotifyState.Date,
+                _ => model.CurrentState
+            };
+            return model;
+        }
     }
 }
