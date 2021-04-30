@@ -12,27 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="BotCommands.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>BotCommands.resx</DependentUpon>
-    </Compile>
-    <Compile Update="CommonResource.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CommonResource.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="BotCommands.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>BotCommands.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="CommonResource.resx">
-      <SubType>Designer</SubType>
-      <LastGenOutput>CommonResource.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 </Project>

@@ -1,10 +1,10 @@
-using Microsoft.Extensions.Logging.Abstractions;
-using Notify.Common;
-using Notify.IO;
-using Notify.IO.File;
-using NUnit.Framework;
-using System.Threading.Tasks;
+using Common.Common;
 using CommonTests;
+using Microsoft.Extensions.Logging.Abstractions;
+using NUnit.Framework;
+using Services.IO;
+using Services.IO.File;
+using System.Threading.Tasks;
 
 namespace NotifyTests
 {

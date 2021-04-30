@@ -1,5 +1,5 @@
-﻿using System;
-using Notify.Common;
+﻿using Common.Common;
+using System;
 
 namespace CommonTests
 {

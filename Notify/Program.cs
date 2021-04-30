@@ -1,14 +1,14 @@
+using Common.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Notify.Commands.OnCallbackQuery;
-using Notify.Commands.OnMessage;
-using Notify.Common;
-using Notify.Helpers;
-using Notify.IO;
-using Notify.IO.File;
-using Notify.Services;
 using Notify.Workers;
+using Services.Commands.OnCallbackQuery;
+using Services.Commands.OnMessage;
+using Services.Helpers;
+using Services.IO;
+using Services.IO.File;
+using Services.Services;
 using Telegram.Bot;
 
 namespace Notify

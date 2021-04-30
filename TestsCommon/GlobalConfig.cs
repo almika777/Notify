@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using Notify.Common;
+﻿using Common.Common;
+using Microsoft.Extensions.Options;
 
 namespace CommonTests
 {
