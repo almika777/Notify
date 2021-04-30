@@ -4,7 +4,7 @@ using Notify.IO;
 using Notify.IO.File;
 using NUnit.Framework;
 using System.Threading.Tasks;
-using TestsCommon;
+using CommonTests;
 
 namespace NotifyTests
 {

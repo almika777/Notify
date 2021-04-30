@@ -1,7 +1,7 @@
 using System;
+using CommonTests;
 using Notify.Common;
 using NUnit.Framework;
-using TestsCommon;
 
 namespace NotifyTests
 {

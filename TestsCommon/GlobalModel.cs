@@ -1,7 +1,7 @@
-﻿using Notify.Common;
-using System;
+﻿using System;
+using Notify.Common;
 
-namespace TestsCommon
+namespace CommonTests
 {
     public class GlobalModel
     {

@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Notify\Notify.csproj" />
-    <ProjectReference Include="..\TestsCommon\TestsCommon.csproj" />
+    <ProjectReference Include="..\TestsCommon\CommonTests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,10 +1,10 @@
 using System.IO;
+using CommonTests;
 using Microsoft.Extensions.Logging.Abstractions;
 using Notify.Common;
 using Notify.IO;
 using Notify.IO.File;
 using NUnit.Framework;
-using TestsCommon;
 
 namespace NotifyTests
 {

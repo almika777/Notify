@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Notify.Common;
 
-namespace TestsCommon
+namespace CommonTests
 {
     public class GlobalConfig : Configuration
     {

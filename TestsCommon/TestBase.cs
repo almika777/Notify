@@ -1,7 +1,7 @@
-﻿using Notify.Common;
-using System.IO;
+﻿using System.IO;
+using Notify.Common;
 
-namespace TestsCommon
+namespace CommonTests
 {
     public class TestBase
     {
