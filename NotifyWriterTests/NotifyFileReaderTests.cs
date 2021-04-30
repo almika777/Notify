@@ -2,9 +2,9 @@ using Common.Common;
 using CommonTests;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
-using Services.IO;
-using Services.IO.File;
 using System.Threading.Tasks;
+using Services.Services.IoServices;
+using Services.Services.IoServices.File;
 
 namespace NotifyTests
 {
@@ -20,8 +20,8 @@ namespace NotifyTests
         {
             _config = GlobalConfig.GetDefault().Value;
             _model = GlobalModel.GetModel();
-            _writer = new NotifyFileWriter(GlobalConfig.GetDefault(), new NullLogger<NotifyFileWriter>());
-            _reader = new NotifyFileReader(GlobalConfig.GetDefault(), new NullLogger<NotifyFileReader>());
+            _writer = new NotifyFileWriterService(GlobalConfig.GetDefault(), new NullLogger<NotifyFileWriterService>());
+            _reader = new NotifyFileReaderService(GlobalConfig.GetDefault(), new NullLogger<NotifyFileReaderService>());
         }
 
         [Test]

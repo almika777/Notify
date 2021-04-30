@@ -16,6 +16,16 @@ namespace Common.Common
         /// <returns></returns>
         public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"));
 
+        public override bool Equals(object obj)
+        {
+            var model = obj as NotifyModel;
+
+            if (model == null) return false;
+
+            return ChatId == model.ChatId && NotifyId == model.NotifyId;
+        }
+
+
         public static NotifyModel FromString(string modelString)
         {
             var properties = modelString.Split(CommonResource.Separator);

@@ -6,9 +6,9 @@ using Notify.Workers;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
-using Services.IO;
-using Services.IO.File;
 using Services.Services;
+using Services.Services.IoServices;
+using Services.Services.IoServices.FileServices;
 using Telegram.Bot;
 
 namespace Notify
@@ -50,7 +50,9 @@ namespace Notify
 
         private static void AddScopedServices(IServiceCollection services)
         {
-            services.AddScoped<INotifyWriter, NotifyFileWriter>();
+            services.AddScoped<INotifyWriter, NotifyFileWriterService>();
+            services.AddScoped<INotifyReader, NotifyFileReaderService>();
+            services.AddScoped<INotifyRemover, NotifyFileRemoveService>();
             services.AddScoped<OnMessageCommandRepository>();
             services.AddScoped<OnCallbackCommandRepository>();
             services.AddScoped<NotifyModifier>();

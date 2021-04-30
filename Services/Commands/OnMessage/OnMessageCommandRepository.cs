@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
 using Common;
 using Services.Services;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Telegram.Bot;
 
 namespace Services.Commands.OnMessage
@@ -16,7 +17,12 @@ namespace Services.Commands.OnMessage
             OnMessageCommands.Add(BotCommands.ShowNotificationCommand, new ShowNotificationsCommand(cache, bot));
         }
 
-        public Task Execute(string command, long chatId) => OnMessageCommands[command].Execute(chatId);
+        public Task Execute(string command, long chatId)
+        {
+            if (!OnMessageCommands.ContainsKey(command)) throw new ArgumentException("Нет такой команды, дружок");
+
+            return OnMessageCommands[command].Execute(chatId);
+        }
 
         public bool IsCommand(string message) => OnMessageCommands.ContainsKey(message.Trim());
     }
