@@ -9,9 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{04C723B4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{636B617B-386A-4642-AE1C-F0AC77535C37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyTests", "NotifyWriterTests\NotifyTests.csproj", "{6BCE0058-8568-4181-AE35-CC6D837397D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotifyTests", "Tests\NotifyWriterTests\NotifyTests.csproj", "{6BCE0058-8568-4181-AE35-CC6D837397D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsCommon", "TestsCommon\TestsCommon.csproj", "{53FCCF27-02EA-42B6-BF56-BE6C27C37D79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsCommon", "Tests\TestsCommon\TestsCommon.csproj", "{53FCCF27-02EA-42B6-BF56-BE6C27C37D79}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
