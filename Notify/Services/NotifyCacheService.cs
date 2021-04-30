@@ -14,7 +14,8 @@ namespace Notify.Services
     {
         public bool IsInitialized { get; private set; }
 
-        public ConcurrentDictionary<long, List<NotifyModel>> ByUser { get; } = new ConcurrentDictionary<long, List<NotifyModel>>();
+        public ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>> ByUser { get; }
+            = new ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>>();
 
         public readonly ConcurrentDictionary<long, NotifyModel> InProgressNotifications =
             new ConcurrentDictionary<long, NotifyModel>();
@@ -47,7 +48,10 @@ namespace Notify.Services
 
                 foreach (var (key, value) in readFilesTasks)
                 {
-                    ByUser.TryAdd(key, value.Result.Where(x => x.Length > 1).Select(NotifyModel.FromString).ToList());
+                    ByUser.TryAdd(key, value.Result
+                        .Where(x => x.Length > 1)
+                        .Select(NotifyModel.FromString)
+                        .ToDictionary(x => x.NotifyId));
                 }
 
                 IsInitialized = true;
@@ -63,28 +67,15 @@ namespace Notify.Services
         {
             if (!ByUser.ContainsKey(model.ChatId))
             {
-                return ByUser.TryAdd(model.ChatId, new List<NotifyModel> {model});
+                return ByUser.TryAdd(model.ChatId, new Dictionary<Guid, NotifyModel> { { model.NotifyId, model } });
             }
 
-            ByUser[model.ChatId].Add(model);
+            ByUser[model.ChatId].Add(model.NotifyId, model);
             return true;
         }
 
         public bool TryRemoveFromCurrent(NotifyModel model)
         {
-            if (model.CurrentState != NotifyState.Date)
-                return InProgressNotifications.TryRemove(new KeyValuePair<long, NotifyModel>(model.ChatId, model));
-
-
-            if (ByUser.ContainsKey(model.ChatId))
-            {
-                ByUser[model.ChatId].Add(model);
-            }
-            else
-            {
-                ByUser.TryAdd(model.ChatId, new List<NotifyModel> { model });
-            }
-
             return InProgressNotifications.TryRemove(new KeyValuePair<long, NotifyModel>(model.ChatId, model));
         }
     }

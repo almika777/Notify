@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using Telegram.Bot.Args;
 
-namespace Notify.Commands
+namespace Notify.Commands.OnMessage
 {
     public class ReplyToStartCommand : IMessageCommand
     {
@@ -14,9 +13,9 @@ namespace Notify.Commands
             _bot = bot;
         }
 
-        public  Task Execute(MessageEventArgs e)
+        public  Task Execute(long chatId)
         {
-            return _bot.SendTextMessageAsync(e.Message.Chat.Id,
+            return _bot.SendTextMessageAsync(chatId,
                 $@"Привет, если ты вечно что-то забываешь, то я помогу тебе. 
                 {Environment.NewLine}Хочешь добавить напоминалку просто жми");
         }

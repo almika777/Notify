@@ -1,8 +1,9 @@
 ﻿namespace Notify.Common
 {
-    public enum NotifyState
+    public enum NotifyStep
     {
         Name,
-        Date
+        Date,
+        Ready
     }
 }

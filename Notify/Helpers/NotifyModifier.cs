@@ -6,19 +6,19 @@ namespace Notify.Helpers
 {
     public class NotifyModifier
     {
-        public NotifyModel Create(MessageEventArgs e)
+        public NotifyModel CreateOrUpdate(NotifyModel? model, MessageEventArgs e)
         {
-            var model = new NotifyModel {ChatId = e.Message.Chat.Id, NotifyId = Guid.NewGuid(), Name = e.Message.Text};
-            return model;
+            var newModel = model ?? new NotifyModel { ChatId = e.Message.Chat.Id, NotifyId = Guid.NewGuid(), Name = e.Message.Text };
+            return Update(newModel, e);
         }
 
-        public NotifyModel Update(NotifyModel model, MessageEventArgs e)
+        private NotifyModel Update(NotifyModel model, MessageEventArgs e)
         {
-            switch (model.CurrentState)
+            switch (model.NextStep)
             {
-                case NotifyState.Name:
+                case NotifyStep.Name:
                     model.Name = e.Message.Text; break;
-                case NotifyState.Date:
+                case NotifyStep.Date:
                     model.Date = DateTimeOffset.TryParse(e.Message.Text, out var date) ? date : throw new FormatException("Неверный формат даты");
                     break;
             }
@@ -26,19 +26,20 @@ namespace Notify.Helpers
             return UpdateState(model);
         }
 
-        public string GetNextStepMessage(NotifyModel model) => model.CurrentState switch
+        public string GetNextStepMessage(NotifyModel model) => model.NextStep switch
         {
-            NotifyState.Name => "Введите дату и время в формате 01.01.2021 00:00",
-            NotifyState.Date => "Готово",
+            NotifyStep.Date => "Введите дату и время в формате 01.01.2021 00:00",
+            NotifyStep.Ready => "Готово",
             _ => throw new ArgumentOutOfRangeException()
         };
 
         private NotifyModel UpdateState(NotifyModel model)
         {
-            model.CurrentState = model.CurrentState switch
+            model.NextStep = model.NextStep switch
             {
-                NotifyState.Name => NotifyState.Date,
-                _ => model.CurrentState
+                NotifyStep.Name => NotifyStep.Date,
+                NotifyStep.Date => NotifyStep.Ready,
+                _ => model.NextStep
             };
             return model;
         }

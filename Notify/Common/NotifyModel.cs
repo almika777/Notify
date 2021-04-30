@@ -7,15 +7,19 @@ namespace Notify.Common
         public long ChatId { get; set; }
         public Guid NotifyId { get; set; }
         public DateTimeOffset Date { get; set; }
-        public NotifyState CurrentState { get; set; }
+        public NotifyStep NextStep { get; set; }
         public string Name { get; set; } = null!;
 
-        public override string ToString() => string.Join(" | ", ChatId, NotifyId, Name, Date);
+        /// <summary>
+        /// Return NotifyModel as string representation with the order of properties (ChatId, NotifyId, Name, Date)
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"));
 
         public static NotifyModel FromString(string modelString)
         {
-            var properties = modelString.Split('|');
-
+            var properties = modelString.Split(CommonResource.Separator);
+            
             return new NotifyModel
             {
                 ChatId = long.TryParse(properties[0], out var chatId)

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Args;
 
 namespace Notify.Workers
 {
@@ -30,13 +31,13 @@ namespace Notify.Workers
             {
                 var notifications = cache.ByUser
                     .SelectMany(x => x.Value)
-                    .Where(x => Math.Abs((x.Date - DateTimeOffset.Now).TotalMinutes) < 2)
+                    .Where(x => Math.Abs((x.Value.Date - DateTimeOffset.Now).TotalMinutes) < 2)
                     .ToImmutableArray();
 
                 notifications.AsParallel().ForAll(x =>
                 {
-                    bot.SendTextMessageAsync(x.ChatId, x.ToString());
-                    cache.ByUser[x.ChatId].Remove(x);
+                    bot.SendTextMessageAsync(x.Value.ChatId, x.ToString());
+                    cache.ByUser[x.Value.ChatId].Remove(x);
                 });
 
                 await Task.Delay(TimeSpan.FromSeconds(60));
@@ -49,8 +50,7 @@ namespace Notify.Workers
             var notifyService = scope.ServiceProvider.GetService<NotifyService>();
 
             bot!.OnMessage += notifyService!.OnMessage;
-            bot.OnCallbackQuery += notifyService!.OnOnCallbackQuery;
-
+            bot.OnCallbackQuery += notifyService!.OnCallbackQuery;
             bot.StartReceiving();
         }
     }

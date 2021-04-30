@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
-namespace Notify.Commands
+namespace Notify.Commands.OnMessage
 {
     public class OnMessageCommandRepository
     {
@@ -12,11 +12,11 @@ namespace Notify.Commands
 
         public OnMessageCommandRepository(NotifyCacheService cache, TelegramBotClient bot)
         {
-            OnMessageCommands.Add("/start", new ReplyToStartCommand(bot));
-            OnMessageCommands.Add("/show", new ShowNotificationsCommand(cache, bot));
+            OnMessageCommands.Add(BotCommands.StartCommand, new ReplyToStartCommand(bot));
+            OnMessageCommands.Add(BotCommands.ShowNotificationCommand, new ShowNotificationsCommand(cache, bot));
         }
 
-        public Task Execute(string command, MessageEventArgs e) => OnMessageCommands[command].Execute(e);
+        public Task Execute(string command, long chatId) => OnMessageCommands[command].Execute(chatId);
 
         public bool IsCommand(string message) => OnMessageCommands.ContainsKey(message.Trim());
     }

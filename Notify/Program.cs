@@ -1,10 +1,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Notify.Commands;
+using Notify.Commands.OnCallbackQuery;
+using Notify.Commands.OnMessage;
 using Notify.Common;
 using Notify.Helpers;
 using Notify.IO;
+using Notify.IO.File;
 using Notify.Services;
 using Notify.Workers;
 using Telegram.Bot;
@@ -13,7 +15,7 @@ namespace Notify
 {
     public class Program
     {
-        private static IConfigurationSection _configurationSection;
+        private static IConfigurationSection _configurationSection = null!;
 
         public static void Main(string[] args)
         {
@@ -50,6 +52,7 @@ namespace Notify
         {
             services.AddScoped<INotifyWriter, NotifyFileWriter>();
             services.AddScoped<OnMessageCommandRepository>();
+            services.AddScoped<OnCallbackCommandRepository>();
             services.AddScoped<NotifyModifier>();
             services.AddScoped<NotifyService>();
         }

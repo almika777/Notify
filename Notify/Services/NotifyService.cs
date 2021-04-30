@@ -4,6 +4,8 @@ using Notify.Common;
 using Notify.Helpers;
 using Notify.IO;
 using System;
+using Notify.Commands.OnCallbackQuery;
+using Notify.Commands.OnMessage;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -15,6 +17,7 @@ namespace Notify.Services
         private readonly INotifyWriter _handler;
         private readonly NotifyCacheService _cache;
         private readonly OnMessageCommandRepository _messageCommandRepository;
+        private readonly OnCallbackCommandRepository _callbackCommandRepository;
         private readonly NotifyModifier _notifyModifier;
         private readonly ILogger<NotifyService> _logger;
 
@@ -23,6 +26,7 @@ namespace Notify.Services
             INotifyWriter handler,
             NotifyCacheService cache,
             OnMessageCommandRepository messageCommandRepository,
+            OnCallbackCommandRepository callbackCommandRepository,
             NotifyModifier notifyModifier,
             ILogger<NotifyService> logger)
         {
@@ -30,41 +34,39 @@ namespace Notify.Services
             _handler = handler;
             _cache = cache;
             _messageCommandRepository = messageCommandRepository;
+            _callbackCommandRepository = callbackCommandRepository;
             _notifyModifier = notifyModifier;
             _logger = logger;
         }
 
-        public void OnOnCallbackQuery(object? sender, CallbackQueryEventArgs e)
+        public void OnCallbackQuery(object? sender, CallbackQueryEventArgs e)
         {
-
-
+            _callbackCommandRepository.Execute(sender, e).ConfigureAwait(false).GetAwaiter().GetResult();
+            _bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id);
         }
 
         public void OnMessage(object? sender, MessageEventArgs e)
         {
             if (_messageCommandRepository.IsCommand(e.Message.Text))
             {
-                _messageCommandRepository.Execute(e.Message.Text, e);
+                _messageCommandRepository.Execute(e.Message.Text, e.Message.Chat.Id);
                 return;
             }
 
             try
             {
-                var modelIsExist = _cache.InProgressNotifications.TryGetValue(e.Message.Chat.Id, out var model);
-                var notifyModel = modelIsExist
-                    ? _notifyModifier.Update(model!, e)
-                    : _notifyModifier.Create(e);
+                _cache.InProgressNotifications.TryGetValue(e.Message.Chat.Id, out var model);
+                var notifyModel = _notifyModifier.CreateOrUpdate(model, e);
 
-
-                switch (notifyModel!.CurrentState)
+                switch (notifyModel!.NextStep)
                 {
-                    case NotifyState.Date:
+                    case NotifyStep.Date:
+                        _cache.InProgressNotifications.TryAdd(e.Message.Chat.Id, notifyModel);
+                        break;
+                    case NotifyStep.Ready:
                         _cache.TryRemoveFromCurrent(notifyModel);
                         _cache.TryAddToMemory(notifyModel);
                         _handler.Write(notifyModel);
-                        break;
-                    case NotifyState.Name:
-                        _cache.InProgressNotifications.TryAdd(e.Message.Chat.Id, notifyModel);
                         break;
                 }
 

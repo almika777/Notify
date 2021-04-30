@@ -4,8 +4,9 @@ using Notify.Common;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+#pragma warning disable 8620
 
-namespace Notify.IO
+namespace Notify.IO.File
 {
     public class NotifyFileWriter : INotifyWriter
     {
@@ -27,9 +28,9 @@ namespace Notify.IO
             try
             {
                 if (!Directory.Exists(_config.CacheFolder)) Directory.CreateDirectory(_config.CacheFolder);
-                if (!File.Exists(path)) await File.Create(path).DisposeAsync();
+                if (!System.IO.File.Exists(path)) await System.IO.File.Create(path).DisposeAsync();
 
-                await File.AppendAllLinesAsync(path, new []{model.ToString()});
+                await System.IO.File.AppendAllLinesAsync(path, new[] { model.ToString() });
             }
             catch (Exception e)
             {
