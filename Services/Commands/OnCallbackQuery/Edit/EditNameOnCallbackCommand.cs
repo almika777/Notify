@@ -1,4 +1,6 @@
-﻿using Common.Common;
+﻿using System;
+using Common;
+using Common.Common;
 using Services.Commands.OnMessage;
 using Services.Services;
 using Services.Services.IoServices;
@@ -33,10 +35,27 @@ namespace Services.Commands.OnCallbackQuery.Edit
         {
             var callbackData = CallbackDataModel.FromCallbackData(e.CallbackQuery.Data);
 
-            _cache.EditName.TryAdd(e.CallbackQuery.Message.Chat.Id, callbackData.NotifyId);
+            var fieldType = GetFieldType(callbackData.Command);
+            var answer = GetAnswer(fieldType);
+            _cache.EditCache.TryAdd(e.CallbackQuery.Message.Chat.Id, (callbackData.NotifyId, fieldType));
             _bot.DeleteMessageAsync(e.CallbackQuery.Message.Chat.Id, e.CallbackQuery.Message.MessageId);
-            
-            return _bot.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Новое имя события");
+
+            return _bot.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, answer);
+        }
+
+        private string GetAnswer(EditField fieldType)
+        {
+            return fieldType switch
+            {
+                EditField.Name => "Новое имя события",
+                EditField.Date => "Новая дата",
+                _ => throw new ArgumentOutOfRangeException(nameof(fieldType), fieldType, null)
+            };
+        }
+
+        private EditField GetFieldType(string callbackDataCommand)
+        {
+            return callbackDataCommand == BotCommands.OnCallback.EditNameCallbackCommand ? EditField.Name : EditField.Date;
         }
     }
 }

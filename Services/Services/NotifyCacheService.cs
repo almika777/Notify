@@ -12,13 +12,14 @@ namespace Services.Services
 {
     public class NotifyCacheService
     {
+        public ConcurrentDictionary<long, (Guid NotifyId, EditField FieldType)> EditCache { get; }
+            = new ConcurrentDictionary<long, (Guid NotifyId, EditField FieldType)>();
+
         public bool IsInitialized { get; private set; }
 
         public ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>> ByUser { get; }
             = new ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>>();
 
-        public ConcurrentDictionary<long, Guid> EditName { get; }
-            = new ConcurrentDictionary<long, Guid>();
 
         public readonly ConcurrentDictionary<long, NotifyModel> InProgressNotifications =
             new ConcurrentDictionary<long, NotifyModel>();

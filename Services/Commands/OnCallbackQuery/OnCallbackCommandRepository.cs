@@ -30,7 +30,7 @@ namespace Services.Commands.OnCallbackQuery
             OnCallbackCommands.Add(BotCommands.OnCallback.RemoveCallbackCommand, new RemoveOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
             OnCallbackCommands.Add(BotCommands.OnCallback.EditCallbackCommand, new EditOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
             OnCallbackCommands.Add(BotCommands.OnCallback.EditNameCallbackCommand, new EditNameOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditDateCallbackCommand, new EditOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
+            OnCallbackCommands.Add(BotCommands.OnCallback.EditDateCallbackCommand, new EditNameOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
         }
 
         public Task Execute(object? sender, CallbackQueryEventArgs e)

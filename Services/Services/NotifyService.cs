@@ -51,6 +51,7 @@ namespace Services.Services
         public void OnMessage(object? sender, MessageEventArgs e)
         {
             var chatId = e.Message.Chat.Id;
+
             if (_messageCommandRepository.IsCommand(e.Message.Text))
             {
                 _messageCommandRepository.Execute(e.Message.Text, chatId);
@@ -59,9 +60,12 @@ namespace Services.Services
 
             try
             {
-                if (_cache.EditName.ContainsKey(chatId))
+                if (_cache.EditCache.TryGetValue(chatId, out var value))
                 {
-                    EditNotifyName(e, chatId);
+                    if (EditNotify(e, chatId, value.FieldType).ConfigureAwait(false).GetAwaiter().GetResult())
+                    {
+                        _bot.SendTextMessageAsync(chatId, "Все гуд");
+                    }
                     return;
                 }
 
@@ -93,13 +97,32 @@ namespace Services.Services
             }
         }
 
-        private async Task EditNotifyName(MessageEventArgs e, long chatId)
+        private async Task<bool> EditNotify(MessageEventArgs e, long chatId, EditField field)
         {
-            _cache.ByUser.TryGetValue(chatId, out var models);
-            models.TryGetValue(_cache.EditName[chatId], out var editedModel);
-            editedModel.ChangeName(e.Message.Text.Trim());
+            try
+            {
+                _cache.ByUser.TryGetValue(chatId, out var models);
+                models!.TryGetValue(_cache.EditCache[chatId].NotifyId, out var editedModel);
 
-            await _editor.Edit(chatId, editedModel);
+                switch (field)
+                {
+                    case EditField.Name: editedModel!.ChangeName(e.Message.Text.Trim()); break;
+                    case EditField.Date:
+                        {
+                            DateTimeOffset.TryParse(e.Message.Text.Trim(), out var date);
+                            editedModel!.ChangeDate(date);
+                            break;
+                        }
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(field), field, null);
+                }
+                return await _editor.Edit(chatId, editedModel);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Чет не радактируется");
+                return false;
+            }
         }
     }
 }
