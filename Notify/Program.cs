@@ -37,7 +37,6 @@ namespace Notify
         {
             _configurationSection = hostContext.Configuration.GetSection(nameof(Configuration));
             services.Configure<Configuration>(_configurationSection);
-
         }
 
         private static void AddSingletonServices(IServiceCollection services)
@@ -50,11 +49,14 @@ namespace Notify
 
         private static void AddScopedServices(IServiceCollection services)
         {
-            services.AddScoped<INotifyWriter, NotifyFileWriterService>();
-            services.AddScoped<INotifyReader, NotifyFileReaderService>();
-            services.AddScoped<INotifyRemover, NotifyFileRemoveService>();
+            services.AddScoped<INotifyWriter, NotifyFileWriter>();
+            services.AddScoped<INotifyReader, NotifyFileReader>();
+            services.AddScoped<INotifyRemover, NotifyFileRemove>();
+            services.AddScoped<INotifyEditor, NotifyFileEditor>();
+
             services.AddScoped<OnMessageCommandRepository>();
             services.AddScoped<OnCallbackCommandRepository>();
+
             services.AddScoped<NotifyModifier>();
             services.AddScoped<NotifyService>();
         }

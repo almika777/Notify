@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Common.Common;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Common;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Services.Services
 {
@@ -17,8 +17,12 @@ namespace Services.Services
         public ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>> ByUser { get; }
             = new ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>>();
 
+        public ConcurrentDictionary<long, Guid> EditName { get; }
+            = new ConcurrentDictionary<long, Guid>();
+
         public readonly ConcurrentDictionary<long, NotifyModel> InProgressNotifications =
             new ConcurrentDictionary<long, NotifyModel>();
+
 
         private readonly Configuration _config;
         private readonly ILogger<NotifyCacheService> _logger;

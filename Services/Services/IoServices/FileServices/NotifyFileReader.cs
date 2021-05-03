@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Services.Services.IoServices.FileServices
 {
-    public class NotifyFileReaderService : INotifyReader
+    public class NotifyFileReader : INotifyReader
     {
-        private readonly ILogger<NotifyFileReaderService> _logger;
+        private readonly ILogger<NotifyFileReader> _logger;
         private readonly Configuration _config;
 
-        public NotifyFileReaderService(IOptions<Configuration> config, ILogger<NotifyFileReaderService> logger)
+        public NotifyFileReader(IOptions<Configuration> config, ILogger<NotifyFileReader> logger)
         {
             _logger = logger;
             _config = config.Value;

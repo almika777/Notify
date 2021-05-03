@@ -1,9 +1,9 @@
-﻿using Common.Common;
+﻿using Common;
+using Common.Common;
+using Services.Commands.OnMessage;
 using Services.Services;
 using Services.Services.IoServices;
 using System.Threading.Tasks;
-using Common;
-using Services.Commands.OnMessage;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 // ReSharper disable PossibleNullReferenceException
@@ -13,18 +13,18 @@ namespace Services.Commands.OnCallbackQuery
     public class RemoveOnCallbackCommand : ICallbackCommand
     {
         private readonly OnMessageCommandRepository _messageCommandRepository;
-        private readonly INotifyRemover _notifyRemover;
+        private readonly INotifyRemover _notifyFileRemover;
         private readonly TelegramBotClient _bot;
         private readonly NotifyCacheService _cache;
 
         public RemoveOnCallbackCommand(
             OnMessageCommandRepository messageCommandRepository, 
-            INotifyRemover notifyRemover, 
+            INotifyRemover notifyFileRemover, 
             NotifyCacheService cache, 
             TelegramBotClient bot)
         {
             _messageCommandRepository = messageCommandRepository;
-            _notifyRemover = notifyRemover;
+            _notifyFileRemover = notifyFileRemover;
             _bot = bot;
             _cache = cache;
         }
@@ -40,9 +40,9 @@ namespace Services.Commands.OnCallbackQuery
 
             if (models!.ContainsKey(callbackData.NotifyId)) models.Remove(callbackData.NotifyId);
 
-            await _notifyRemover.Remove(model);
+            await _notifyFileRemover.Remove(model);
             await _bot.DeleteMessageAsync(key, e.CallbackQuery.Message.MessageId);
-            await _messageCommandRepository.Execute(BotCommands.ShowNotificationCommand, key);
+            await _messageCommandRepository.Execute(BotCommands.OnMessage.ShowNotificationCommand, key);
         }
     }
 }

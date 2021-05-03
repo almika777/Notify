@@ -23,5 +23,8 @@ namespace Common.Common
 
         public static string ToCallbackData(CallbackDataModel model) =>
             string.Join(CommonResource.Separator, model.Command, model.NotifyId);
+
+        public static string ToCallbackData(string command, Guid notifyId) =>
+            string.Join(CommonResource.Separator, command, notifyId);
     }
 }

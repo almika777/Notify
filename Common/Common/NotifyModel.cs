@@ -1,4 +1,5 @@
 ﻿using System;
+#pragma warning disable 659
 
 namespace Common.Common
 {
@@ -10,21 +11,9 @@ namespace Common.Common
         public NotifyStep NextStep { get; set; }
         public string Name { get; set; } = null!;
 
-        /// <summary>
-        /// Return NotifyModel as string representation with the order of properties (ChatId, NotifyId, Name, Date)
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"));
 
-        public override bool Equals(object obj)
-        {
-            var model = obj as NotifyModel;
-
-            if (model == null) return false;
-
-            return ChatId == model.ChatId && NotifyId == model.NotifyId;
-        }
-
+        public void ChangeName(string newName) => Name = newName;
+        public void ChangeDate(DateTimeOffset date) => Date = date;
 
         public static NotifyModel FromString(string modelString)
         {
@@ -43,6 +32,21 @@ namespace Common.Common
                     ? date
                     : throw new FormatException($"Мы как-то записали неверный формат {nameof(Date)}"),
             };
+        }
+
+        /// <summary>
+        /// Return NotifyModel as string representation with the order of properties (ChatId, NotifyId, Name, Date)
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"));
+
+        public override bool Equals(object obj)
+        {
+            var model = obj as NotifyModel;
+
+            if (model == null) return false;
+
+            return ChatId == model.ChatId && NotifyId == model.NotifyId;
         }
     }
 }

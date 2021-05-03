@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Services.Services;
+using Services.Services.IoServices;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -21,31 +22,39 @@ namespace Notify.Workers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var cache = _serviceProvider.GetService<NotifyCacheService>()!;
-            var bot = _serviceProvider.GetService<TelegramBotClient>()!;
+            using var scope = _serviceProvider.CreateScope();
+            var cache = scope.ServiceProvider.GetService<NotifyCacheService>()!;
+            var bot = scope.ServiceProvider.GetService<TelegramBotClient>()!;
+            var remover = scope.ServiceProvider.GetService<INotifyRemover>()!;
 
             await cache.Initialize();
-            StartBot(bot);
+            StartBot(scope, bot);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 var notifications = cache.ByUser
                     .SelectMany(x => x.Value)
-                    .Where(x => Math.Abs((x.Value.Date - DateTimeOffset.Now).TotalMinutes) < 2)
+                    .Where(x => Math.Abs((x.Value.Date - DateTimeOffset.Now).TotalSeconds) < 35)
                     .ToImmutableArray();
 
-                notifications.AsParallel().ForAll(x =>
+                if (notifications.Any())
                 {
-                    bot.SendTextMessageAsync(x.Value.ChatId, x.ToString());
-                    cache.ByUser[x.Value.ChatId].Remove(x);
-                });
+                    var tasks = notifications.AsParallel().Select(async x =>
+                    {
+                        cache.ByUser[x.Value.ChatId].Remove(x);
+                        await remover.Remove(x.Value);
+                        await bot.SendTextMessageAsync(x.Value.ChatId, x.ToString());
+                    });
 
-                await Task.Delay(TimeSpan.FromSeconds(60));
+                    await Task.WhenAll(tasks);
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(30));
             }
         }
 
-        private void StartBot(ITelegramBotClient bot)
+        private void StartBot(IServiceScope scope, ITelegramBotClient bot)
         {
-            using var scope = _serviceProvider.CreateScope();
             var notifyService = scope.ServiceProvider.GetService<NotifyService>();
 
             bot!.OnMessage += notifyService!.OnMessage;

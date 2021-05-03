@@ -1,22 +1,26 @@
 ﻿using Common.Common;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Services.Services.IoServices.FileServices
 {
-    public class NotifyFileRemoveService : INotifyRemover
+    public class NotifyFileRemove : INotifyRemover
     {
         private readonly Configuration _config;
         private readonly INotifyReader _reader;
         private readonly INotifyWriter _writer;
-        private readonly ILogger<NotifyFileRemoveService> _logger;
+        private readonly ILogger<NotifyFileRemove> _logger;
 
-        public NotifyFileRemoveService(INotifyReader reader, INotifyWriter writer, IOptions<Configuration> config, ILogger<NotifyFileRemoveService> logger)
+        public NotifyFileRemove(
+            INotifyReader reader, 
+            INotifyWriter writer, 
+            IOptions<Configuration> config, 
+            ILogger<NotifyFileRemove> logger)
         {
             _config = config.Value;
             _reader = reader;

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using System;
+using System.Threading.Tasks;
 using Services.Helpers;
 using Services.Services.IoServices;
 using Telegram.Bot;
@@ -14,6 +15,7 @@ namespace Services.Services
     {
         private readonly TelegramBotClient _bot;
         private readonly INotifyWriter _handler;
+        private readonly INotifyEditor _editor;
         private readonly NotifyCacheService _cache;
         private readonly OnMessageCommandRepository _messageCommandRepository;
         private readonly OnCallbackCommandRepository _callbackCommandRepository;
@@ -23,6 +25,7 @@ namespace Services.Services
         public NotifyService(
             TelegramBotClient bot,
             INotifyWriter handler,
+            INotifyEditor editor,
             NotifyCacheService cache,
             OnMessageCommandRepository messageCommandRepository,
             OnCallbackCommandRepository callbackCommandRepository,
@@ -31,6 +34,7 @@ namespace Services.Services
         {
             _bot = bot;
             _handler = handler;
+            _editor = editor;
             _cache = cache;
             _messageCommandRepository = messageCommandRepository;
             _callbackCommandRepository = callbackCommandRepository;
@@ -46,21 +50,28 @@ namespace Services.Services
 
         public void OnMessage(object? sender, MessageEventArgs e)
         {
+            var chatId = e.Message.Chat.Id;
             if (_messageCommandRepository.IsCommand(e.Message.Text))
             {
-                _messageCommandRepository.Execute(e.Message.Text, e.Message.Chat.Id);
+                _messageCommandRepository.Execute(e.Message.Text, chatId);
                 return;
             }
 
             try
             {
-                _cache.InProgressNotifications.TryGetValue(e.Message.Chat.Id, out var model);
+                if (_cache.EditName.ContainsKey(chatId))
+                {
+                    EditNotifyName(e, chatId);
+                    return;
+                }
+
+                _cache.InProgressNotifications.TryGetValue(chatId, out var model);
                 var notifyModel = _notifyModifier.CreateOrUpdate(model, e);
 
                 switch (notifyModel!.NextStep)
                 {
                     case NotifyStep.Date:
-                        _cache.InProgressNotifications.TryAdd(e.Message.Chat.Id, notifyModel);
+                        _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
                         break;
                     case NotifyStep.Ready:
                         _cache.TryRemoveFromCurrent(notifyModel);
@@ -69,17 +80,26 @@ namespace Services.Services
                         break;
                 }
 
-                _bot.SendTextMessageAsync(e.Message.Chat.Id, _notifyModifier.GetNextStepMessage(notifyModel));
+                _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
             }
             catch (FormatException exception)
             {
-                _bot.SendTextMessageAsync(e.Message.Chat.Id, exception.Message);
+                _bot.SendTextMessageAsync(chatId, exception.Message);
                 _logger.LogError("Чет не форматнулось", exception);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Чет поломалось");
             }
+        }
+
+        private async Task EditNotifyName(MessageEventArgs e, long chatId)
+        {
+            _cache.ByUser.TryGetValue(chatId, out var models);
+            models.TryGetValue(_cache.EditName[chatId], out var editedModel);
+            editedModel.ChangeName(e.Message.Text.Trim());
+
+            await _editor.Edit(chatId, editedModel);
         }
     }
 }

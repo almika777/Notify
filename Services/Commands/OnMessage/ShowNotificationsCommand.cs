@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using Common.Common;
 using Services.Services;
 using Telegram.Bot;
@@ -38,8 +39,7 @@ namespace Services.Commands.OnMessage
                 buttons.Add(userModels.Skip(skip).Take(InlineButtonNumber).Select(x => new InlineKeyboardButton
                 {
                     Text = x.Value.Name,
-                    CallbackData = CallbackDataModel
-                        .ToCallbackData(new CallbackDataModel("показать", x.Key))
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.ShowCallbackDataCommand, x.Key)
                 }));
 
                 skip += InlineButtonNumber;

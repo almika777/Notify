@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace Services.Services.IoServices.FileServices
 {
-    public class NotifyFileWriterService : INotifyWriter
+    public class NotifyFileWriter : INotifyWriter
     {
-        private readonly ILogger<NotifyFileWriterService> _logger;
+        private readonly ILogger<NotifyFileWriter> _logger;
         private readonly Configuration _config;
 
-        public NotifyFileWriterService(IOptions<Configuration> config, ILogger<NotifyFileWriterService> logger)
+        public NotifyFileWriter(IOptions<Configuration> config, ILogger<NotifyFileWriter> logger)
         {
             _logger = logger;
             _config = config.Value;
