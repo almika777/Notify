@@ -1,12 +1,13 @@
 ﻿using Common.Common;
+using Common.Common.Enum;
 using Microsoft.Extensions.Logging;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
 using Services.Services.IoServices;
+using Services.Services.IoServices.FileServices;
 using System;
 using System.Threading.Tasks;
-using Common.Common.Enum;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -15,7 +16,7 @@ namespace Services.Services
     public class NotifyService
     {
         private readonly TelegramBotClient _bot;
-        private readonly INotifyWriter _handler;
+        private readonly INotifyWriter _writer;
         private readonly INotifyEditor _editor;
         private readonly NotifyCacheService _cache;
         private readonly OnMessageCommandRepository _messageCommandRepository;
@@ -25,8 +26,7 @@ namespace Services.Services
 
         public NotifyService(
             TelegramBotClient bot,
-            INotifyWriter handler,
-            INotifyEditor editor,
+            IoRepository ioRepository,
             NotifyCacheService cache,
             OnMessageCommandRepository messageCommandRepository,
             OnCallbackCommandRepository callbackCommandRepository,
@@ -34,8 +34,8 @@ namespace Services.Services
             ILogger<NotifyService> logger)
         {
             _bot = bot;
-            _handler = handler;
-            _editor = editor;
+            _writer = ioRepository.NotifyWriter;
+            _editor = ioRepository.NotifyEditor;
             _cache = cache;
             _messageCommandRepository = messageCommandRepository;
             _callbackCommandRepository = callbackCommandRepository;
@@ -92,7 +92,7 @@ namespace Services.Services
                 case NotifyStep.Ready:
                     _cache.TryRemoveFromCurrent(notifyModel);
                     _cache.TryAddToMemory(notifyModel);
-                    await _handler.Write(notifyModel);
+                    await _writer.Write(notifyModel);
                     break;
             }
 
