@@ -2,12 +2,12 @@
 {
     public enum FrequencyType
     {
-        Once,
-        Minute,
-        Hour,
-        Day,
-        Week,
-        Month,
-        Custom
+        Once = 0,
+        Minute = 1,
+        Hour = 2,
+        Day = 3,
+        Week = 4,
+        Month = 5,
+        Custom = 99
     }
 }

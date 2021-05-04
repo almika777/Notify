@@ -13,14 +13,14 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Services.Commands.OnCallbackQuery.Edit
 {
-    public class EditOnCallbackCommand : ICallbackCommand
+    public class EditOnCallback : ICallbackCommand
     {
         private readonly OnMessageCommandRepository _messageCommandRepository;
         private readonly INotifyRemover _notifyFileRemover;
         private readonly TelegramBotClient _bot;
         private readonly NotifyCacheService _cache;
 
-        public EditOnCallbackCommand(
+        public EditOnCallback(
             OnMessageCommandRepository messageCommandRepository,
             INotifyRemover notifyFileRemover,
             NotifyCacheService cache,

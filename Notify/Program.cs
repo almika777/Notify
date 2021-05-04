@@ -6,6 +6,7 @@ using Notify.Workers;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
+using Services.Helpers.NotifyStepHandlers;
 using Services.Services;
 using Services.Services.IoServices;
 using Services.Services.IoServices.FileServices;
@@ -54,6 +55,7 @@ namespace Notify
             services.AddScoped<INotifyRemover, NotifyFileRemove>();
             services.AddScoped<INotifyEditor, NotifyFileEditor>();
 
+            services.AddScoped<NotifyStepHandlers>();
             services.AddScoped<OnMessageCommandRepository>();
             services.AddScoped<OnCallbackCommandRepository>();
 

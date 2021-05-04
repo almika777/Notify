@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
+using Services.Helpers.NotifyStepHandlers;
 using Services.Services.IoServices;
 using System;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace Services.Services
         private readonly INotifyWriter _writer;
         private readonly INotifyEditor _editor;
         private readonly NotifyCacheService _cache;
+        private readonly NotifyStepHandlers _stepHandlers;
         private readonly OnMessageCommandRepository _messageCommandRepository;
         private readonly OnCallbackCommandRepository _callbackCommandRepository;
         private readonly NotifyModifier _notifyModifier;
@@ -28,6 +30,7 @@ namespace Services.Services
             INotifyWriter writer,
             INotifyEditor editor,
             NotifyCacheService cache,
+            NotifyStepHandlers stepHandlers,
             OnMessageCommandRepository messageCommandRepository,
             OnCallbackCommandRepository callbackCommandRepository,
             NotifyModifier notifyModifier,
@@ -37,6 +40,7 @@ namespace Services.Services
             _writer = writer;
             _editor = editor;
             _cache = cache;
+            _stepHandlers = stepHandlers;
             _messageCommandRepository = messageCommandRepository;
             _callbackCommandRepository = callbackCommandRepository;
             _notifyModifier = notifyModifier;
@@ -63,9 +67,7 @@ namespace Services.Services
             {
                 if (await CheckEditCache(e, chatId)) return;
 
-                var notifyModel = await CreateOrUpdateNotify(e, chatId);
-
-                await _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
+                await CreateOrUpdateNotify(e);
             }
             catch (FormatException exception)
             {
@@ -78,8 +80,9 @@ namespace Services.Services
             }
         }
 
-        private async Task<NotifyModel> CreateOrUpdateNotify(MessageEventArgs e, long chatId)
+        private async Task CreateOrUpdateNotify(MessageEventArgs e)
         {
+            var chatId = e.Message.Chat.Id;
             _cache.InProgressNotifications.TryGetValue(chatId, out var model);
 
             var notifyModel = _notifyModifier.CreateOrUpdate(model, e);
@@ -88,15 +91,20 @@ namespace Services.Services
             {
                 case NotifyStep.Date:
                     _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
+                    await _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
                     break;
+                case NotifyStep.Frequency:
+                    {
+                        await _stepHandlers.FrequencyStep.Execute(chatId, notifyModel);
+                        break;
+                    }
                 case NotifyStep.Ready:
                     _cache.TryRemoveFromCurrent(notifyModel);
                     _cache.TryAddToMemory(notifyModel);
                     await _writer.Write(notifyModel);
+                    await _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
                     break;
             }
-
-            return notifyModel;
         }
 
         private async Task<bool> CheckEditCache(MessageEventArgs e, long chatId)

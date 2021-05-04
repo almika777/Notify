@@ -10,14 +10,14 @@ using Telegram.Bot.Args;
 
 namespace Services.Commands.OnCallbackQuery
 {
-    public class RemoveOnCallbackCommand : ICallbackCommand
+    public class RemoveOnCallback : ICallbackCommand
     {
         private readonly OnMessageCommandRepository _messageCommandRepository;
         private readonly INotifyRemover _notifyFileRemover;
         private readonly TelegramBotClient _bot;
         private readonly NotifyCacheService _cache;
 
-        public RemoveOnCallbackCommand(
+        public RemoveOnCallback(
             OnMessageCommandRepository messageCommandRepository,
             INotifyRemover notifyFileRemover,
             NotifyCacheService cache,

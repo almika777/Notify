@@ -4,6 +4,7 @@
     {
         Name,
         Date,
+        Frequency,
         Ready
     }
 }

@@ -9,12 +9,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Services.Commands.OnCallbackQuery
 {
-    public class ShowOnCallbackCommand : ICallbackCommand
+    public class ShowOnCallback : ICallbackCommand
     {
         private readonly NotifyCacheService _cache;
         private readonly TelegramBotClient _bot;
 
-        public ShowOnCallbackCommand(NotifyCacheService cache, TelegramBotClient bot)
+        public ShowOnCallback(NotifyCacheService cache, TelegramBotClient bot)
         {
             _cache = cache;
             _bot = bot;

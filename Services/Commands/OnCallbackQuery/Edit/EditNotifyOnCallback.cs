@@ -10,12 +10,12 @@ using Telegram.Bot.Args;
 
 namespace Services.Commands.OnCallbackQuery.Edit
 {
-    public class EditNotifyOnCallbackCommand : ICallbackCommand
+    public class EditNotifyOnCallback : ICallbackCommand
     {
         private readonly TelegramBotClient _bot;
         private readonly NotifyCacheService _cache;
 
-        public EditNotifyOnCallbackCommand(NotifyCacheService cache, TelegramBotClient bot)
+        public EditNotifyOnCallback(NotifyCacheService cache, TelegramBotClient bot)
         {
             _bot = bot;
             _cache = cache;
