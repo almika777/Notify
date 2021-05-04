@@ -17,14 +17,13 @@ namespace Services.Services.IoServices.FileServices
         private readonly ILogger<NotifyFileRemove> _logger;
 
         public NotifyFileRemove(
-            INotifyReader reader, 
-            INotifyWriter writer, 
+            IoRepository ioRepository, 
             IOptions<Configuration> config, 
             ILogger<NotifyFileRemove> logger)
         {
             _config = config.Value;
-            _reader = reader;
-            _writer = writer;
+            _reader = ioRepository.NotifyReader;
+            _writer = ioRepository.NotifyWriter;
             _logger = logger;
         }
 
