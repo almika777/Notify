@@ -1,4 +1,4 @@
-﻿namespace Common.Common
+﻿namespace Common.Common.Enum
 {
     public enum NotifyStep
     {

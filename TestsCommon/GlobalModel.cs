@@ -1,5 +1,6 @@
 ﻿using Common.Common;
 using System;
+using Common.Common.Enum;
 
 namespace CommonTests
 {

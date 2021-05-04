@@ -2,10 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
-using System;
-using System.Threading.Tasks;
 using Services.Helpers;
 using Services.Services.IoServices;
+using System;
+using System.Threading.Tasks;
+using Common.Common.Enum;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -48,53 +49,65 @@ namespace Services.Services
             _bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id);
         }
 
-        public void OnMessage(object? sender, MessageEventArgs e)
+        public async void OnMessage(object? sender, MessageEventArgs e)
         {
             var chatId = e.Message.Chat.Id;
 
             if (_messageCommandRepository.IsCommand(e.Message.Text))
             {
-                _messageCommandRepository.Execute(e.Message.Text, chatId);
+                await _messageCommandRepository.Execute(e.Message.Text, chatId);
                 return;
             }
 
             try
             {
-                if (_cache.EditCache.TryGetValue(chatId, out var value))
-                {
-                    if (EditNotify(e, chatId, value.FieldType).ConfigureAwait(false).GetAwaiter().GetResult())
-                    {
-                        _bot.SendTextMessageAsync(chatId, "Все гуд");
-                    }
-                    return;
-                }
+                if (await CheckEditCache(e, chatId)) return;
 
-                _cache.InProgressNotifications.TryGetValue(chatId, out var model);
-                var notifyModel = _notifyModifier.CreateOrUpdate(model, e);
+                var notifyModel = await CreateOrUpdateNotify(e, chatId);
 
-                switch (notifyModel!.NextStep)
-                {
-                    case NotifyStep.Date:
-                        _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
-                        break;
-                    case NotifyStep.Ready:
-                        _cache.TryRemoveFromCurrent(notifyModel);
-                        _cache.TryAddToMemory(notifyModel);
-                        _handler.Write(notifyModel);
-                        break;
-                }
-
-                _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
+                await _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
             }
             catch (FormatException exception)
             {
-                _bot.SendTextMessageAsync(chatId, exception.Message);
+                await _bot.SendTextMessageAsync(chatId, exception.Message);
                 _logger.LogError("Чет не форматнулось", exception);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Чет поломалось");
             }
+        }
+
+        private async Task<NotifyModel> CreateOrUpdateNotify(MessageEventArgs e, long chatId)
+        {
+            _cache.InProgressNotifications.TryGetValue(chatId, out var model);
+
+            var notifyModel = _notifyModifier.CreateOrUpdate(model, e);
+
+            switch (notifyModel!.NextStep)
+            {
+                case NotifyStep.Date:
+                    _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
+                    break;
+                case NotifyStep.Ready:
+                    _cache.TryRemoveFromCurrent(notifyModel);
+                    _cache.TryAddToMemory(notifyModel);
+                    await _handler.Write(notifyModel);
+                    break;
+            }
+
+            return notifyModel;
+        }
+
+        private async Task<bool> CheckEditCache(MessageEventArgs e, long chatId)
+        {
+            if (!_cache.EditCache.TryGetValue(chatId, out var value)) return false;
+
+            if (await EditNotify(e, chatId, value.FieldType))
+                await _bot.SendTextMessageAsync(chatId, "Все гуд");
+
+            return true;
+
         }
 
         private async Task<bool> EditNotify(MessageEventArgs e, long chatId, EditField field)

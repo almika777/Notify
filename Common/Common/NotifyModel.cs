@@ -1,4 +1,6 @@
 ﻿using System;
+using Common.Common.Enum;
+
 #pragma warning disable 659
 
 namespace Common.Common
@@ -9,6 +11,7 @@ namespace Common.Common
         public Guid NotifyId { get; set; }
         public DateTimeOffset Date { get; set; }
         public NotifyStep NextStep { get; set; }
+        public FrequencyType Frequency { get; set; }
         public string Name { get; set; } = null!;
 
 
