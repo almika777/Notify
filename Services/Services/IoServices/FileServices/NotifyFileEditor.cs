@@ -16,12 +16,13 @@ namespace Services.Services.IoServices.FileServices
         private readonly Configuration _config;
 
         public NotifyFileEditor(
-            IoRepository ioRepository, 
+            INotifyReader reader, 
+            INotifyWriter writer, 
             IOptions<Configuration> config, 
             ILogger<NotifyFileEditor> logger)
         {
-            _reader = ioRepository.NotifyReader;
-            _writer = ioRepository.NotifyWriter;
+            _reader = reader;
+            _writer = writer;
             _logger = logger;
             _config = config.Value;
         }

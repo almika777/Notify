@@ -35,12 +35,12 @@ namespace Services.Commands.OnCallbackQuery
                 new InlineKeyboardButton
                 {
                     Text = "Удалить",
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.RemoveCallbackCommand, model!.NotifyId),
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.Remove, model!.NotifyId),
                 },
                 new InlineKeyboardButton
                 {
                     Text = "Редактировать",
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditCallbackCommand, model!.NotifyId),
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditEntry, model!.NotifyId),
                 }
             });
 

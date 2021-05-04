@@ -38,18 +38,18 @@ namespace Services.Commands.OnCallbackQuery.Edit
             _cache.ByUser.TryGetValue(chatId, out var models);
 
             var callbackData = CallbackDataModel.FromCallbackData(e.CallbackQuery.Data);
-            models.TryGetValue(callbackData.NotifyId, out var model);
+            models!.TryGetValue(callbackData.NotifyId, out var model);
 
             var markup = new InlineKeyboardMarkup(new[]{
                 new InlineKeyboardButton
                 {
                     Text = "Название",
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNameCallbackCommand, model!.NotifyId),
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNotifyName, model!.NotifyId),
                 },
                 new InlineKeyboardButton
                 {
                     Text = "Дату",
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditDateCallbackCommand, model!.NotifyId),
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNotifyDate, model!.NotifyId),
                 }
             });
 

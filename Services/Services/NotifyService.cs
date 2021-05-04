@@ -5,7 +5,6 @@ using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
 using Services.Services.IoServices;
-using Services.Services.IoServices.FileServices;
 using System;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -26,7 +25,8 @@ namespace Services.Services
 
         public NotifyService(
             TelegramBotClient bot,
-            IoRepository ioRepository,
+            INotifyWriter writer,
+            INotifyEditor editor,
             NotifyCacheService cache,
             OnMessageCommandRepository messageCommandRepository,
             OnCallbackCommandRepository callbackCommandRepository,
@@ -34,8 +34,8 @@ namespace Services.Services
             ILogger<NotifyService> logger)
         {
             _bot = bot;
-            _writer = ioRepository.NotifyWriter;
-            _editor = ioRepository.NotifyEditor;
+            _writer = writer;
+            _editor = editor;
             _cache = cache;
             _messageCommandRepository = messageCommandRepository;
             _callbackCommandRepository = callbackCommandRepository;

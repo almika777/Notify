@@ -1,9 +1,7 @@
-﻿using System;
-using Common;
+﻿using Common;
 using Common.Common;
-using Services.Commands.OnMessage;
 using Services.Services;
-using Services.Services.IoServices;
+using System;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -12,21 +10,13 @@ using Telegram.Bot.Args;
 
 namespace Services.Commands.OnCallbackQuery.Edit
 {
-    public class EditNameOnCallbackCommand : ICallbackCommand
+    public class EditNotifyOnCallbackCommand : ICallbackCommand
     {
-        private readonly OnMessageCommandRepository _messageCommandRepository;
-        private readonly INotifyRemover _notifyFileRemover;
         private readonly TelegramBotClient _bot;
         private readonly NotifyCacheService _cache;
 
-        public EditNameOnCallbackCommand(
-            OnMessageCommandRepository messageCommandRepository,
-            INotifyRemover notifyFileRemover,
-            NotifyCacheService cache,
-            TelegramBotClient bot)
+        public EditNotifyOnCallbackCommand(NotifyCacheService cache, TelegramBotClient bot)
         {
-            _messageCommandRepository = messageCommandRepository;
-            _notifyFileRemover = notifyFileRemover;
             _bot = bot;
             _cache = cache;
         }
@@ -55,7 +45,9 @@ namespace Services.Commands.OnCallbackQuery.Edit
 
         private EditField GetFieldType(string callbackDataCommand)
         {
-            return callbackDataCommand == BotCommands.OnCallback.EditNameCallbackCommand ? EditField.Name : EditField.Date;
+            return callbackDataCommand == BotCommands.OnCallback.EditNotifyName 
+                ? EditField.Name 
+                : EditField.Date;
         }
     }
 }

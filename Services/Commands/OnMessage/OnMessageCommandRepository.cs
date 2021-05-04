@@ -13,8 +13,8 @@ namespace Services.Commands.OnMessage
 
         public OnMessageCommandRepository(NotifyCacheService cache, TelegramBotClient bot)
         {
-            OnMessageCommands.Add(BotCommands.OnMessage.StartCommand, new ReplyToStartCommand(bot));
-            OnMessageCommands.Add(BotCommands.OnMessage.ShowNotificationCommand, new ShowNotificationsCommand(cache, bot));
+            OnMessageCommands.Add(BotCommands.OnMessage.Start, new ReplyToStartCommand(bot));
+            OnMessageCommands.Add(BotCommands.OnMessage.ShowNotification, new ShowNotificationsCommand(cache, bot));
         }
 
         public Task Execute(string command, long chatId)

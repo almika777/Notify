@@ -54,7 +54,6 @@ namespace Notify
             services.AddScoped<INotifyRemover, NotifyFileRemove>();
             services.AddScoped<INotifyEditor, NotifyFileEditor>();
 
-            services.AddScoped<IoRepository>();
             services.AddScoped<OnMessageCommandRepository>();
             services.AddScoped<OnCallbackCommandRepository>();
 

@@ -1,13 +1,13 @@
 ﻿using Common;
 using Common.Common;
 using Microsoft.Extensions.Logging;
+using Services.Commands.OnCallbackQuery.Edit;
 using Services.Commands.OnMessage;
 using Services.Services;
 using Services.Services.IoServices;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Services.Commands.OnCallbackQuery.Edit;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -26,11 +26,7 @@ namespace Services.Commands.OnCallbackQuery
             ILogger<OnCallbackCommandRepository> logger)
         {
             _logger = logger;
-            OnCallbackCommands.Add(BotCommands.OnCallback.ShowCallbackDataCommand, new ShowOnCallbackCommand(cache, bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.RemoveCallbackCommand, new RemoveOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditCallbackCommand, new EditOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditNameCallbackCommand, new EditNameOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditDateCallbackCommand, new EditNameOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
+            Init(messageCommandRepository, cache, bot, fileRemover);
         }
 
         public Task Execute(object? sender, CallbackQueryEventArgs e)
@@ -45,6 +41,23 @@ namespace Services.Commands.OnCallbackQuery
                 _logger.LogError(exception, "Упс");
                 return Task.CompletedTask;
             }
+        }
+
+        private void Init(OnMessageCommandRepository messageCommandRepository, NotifyCacheService cache, TelegramBotClient bot,
+            INotifyRemover fileRemover)
+        {
+            OnCallbackCommands.Add(BotCommands.OnCallback.Show, new ShowOnCallbackCommand(cache, bot));
+            OnCallbackCommands.Add(BotCommands.OnCallback.Remove, new RemoveOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
+            OnCallbackCommands.Add(BotCommands.OnCallback.EditEntry, new EditOnCallbackCommand(messageCommandRepository, fileRemover, cache, bot));
+            InitEditors(cache, bot);
+        }
+
+        private void InitEditors(NotifyCacheService cache, TelegramBotClient bot)
+        {
+            var editor = new EditNotifyOnCallbackCommand(cache, bot);
+
+            OnCallbackCommands.Add(BotCommands.OnCallback.EditNotifyName, editor);
+            OnCallbackCommands.Add(BotCommands.OnCallback.EditNotifyDate, editor);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace Services.Commands.OnMessage
                 buttons.Add(userModels.Skip(skip).Take(InlineButtonNumber).Select(x => new InlineKeyboardButton
                 {
                     Text = x.Value.Name,
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.ShowCallbackDataCommand, x.Key)
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.Show, x.Key)
                 }));
 
                 skip += InlineButtonNumber;

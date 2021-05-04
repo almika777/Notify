@@ -18,9 +18,9 @@ namespace Services.Commands.OnCallbackQuery
         private readonly NotifyCacheService _cache;
 
         public RemoveOnCallbackCommand(
-            OnMessageCommandRepository messageCommandRepository, 
-            INotifyRemover notifyFileRemover, 
-            NotifyCacheService cache, 
+            OnMessageCommandRepository messageCommandRepository,
+            INotifyRemover notifyFileRemover,
+            NotifyCacheService cache,
             TelegramBotClient bot)
         {
             _messageCommandRepository = messageCommandRepository;
@@ -40,9 +40,9 @@ namespace Services.Commands.OnCallbackQuery
 
             if (models!.ContainsKey(callbackData.NotifyId)) models.Remove(callbackData.NotifyId);
 
-            await _notifyFileRemover.Remove(model);
+            await _notifyFileRemover.Remove(model!);
             await _bot.DeleteMessageAsync(key, e.CallbackQuery.Message.MessageId);
-            await _messageCommandRepository.Execute(BotCommands.OnMessage.ShowNotificationCommand, key);
+            await _messageCommandRepository.Execute(BotCommands.OnMessage.ShowNotification, key);
         }
     }
 }

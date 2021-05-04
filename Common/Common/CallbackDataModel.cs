@@ -4,8 +4,8 @@ namespace Common.Common
 {
     public class CallbackDataModel
     {
-        public string Command { get; set; }
-        public Guid NotifyId { get; set; }
+        public string Command { get; }
+        public Guid NotifyId { get; }
 
         public CallbackDataModel(string command, Guid notifyId)
         {
@@ -21,8 +21,8 @@ namespace Common.Common
             return new CallbackDataModel(props[0], id);
         }
 
-        public static string ToCallbackData(CallbackDataModel model) =>
-            string.Join(CommonResource.Separator, model.Command, model.NotifyId);
+        public static string ToCallbackData(CallbackDataModel model)
+            => ToCallbackData(model.Command, model.NotifyId);
 
         public static string ToCallbackData(string command, Guid notifyId) =>
             string.Join(CommonResource.Separator, command, notifyId);

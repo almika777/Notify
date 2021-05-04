@@ -4,17 +4,17 @@
     {
         public static class OnMessage
         {
-            public static string StartCommand => "/start";
-            public static string ShowNotificationCommand => "/show";
+            public static string Start => "/start";
+            public static string ShowNotification => "/show";
         }
 
         public static class OnCallback
         {
-            public static string ShowCallbackDataCommand => "show";
-            public static string RemoveCallbackCommand => "remove";
-            public static string EditCallbackCommand => "edit";
-            public static string EditNameCallbackCommand => "edit_name";
-            public static string EditDateCallbackCommand => "edit_date";
+            public static string Show => "show";
+            public static string Remove => "remove";
+            public static string EditEntry => "edit";
+            public static string EditNotifyName => "edit_name";
+            public static string EditNotifyDate => "edit_date";
         }
     }
 }
