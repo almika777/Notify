@@ -85,25 +85,18 @@ namespace Services.Services
             var chatId = e.Message.Chat.Id;
             _cache.InProgressNotifications.TryGetValue(chatId, out var model);
 
-            var notifyModel = _notifyModifier.CreateOrUpdate(model, e);
+            var notifyModel = _notifyModifier.CreateOrUpdate(model, chatId, e.Message.Text);
 
             switch (notifyModel!.NextStep)
             {
                 case NotifyStep.Date:
                     _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
-                    await _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
+                    await _bot.SendTextMessageAsync(chatId, notifyModel.GetNextStepMessage());
                     break;
                 case NotifyStep.Frequency:
-                    {
-                        await _stepHandlers.FrequencyStep.Execute(chatId, notifyModel);
-                        break;
-                    }
+                    await _stepHandlers.FrequencyStep.Execute(chatId, notifyModel); break;
                 case NotifyStep.Ready:
-                    _cache.TryRemoveFromCurrent(notifyModel);
-                    _cache.TryAddToMemory(notifyModel);
-                    await _writer.Write(notifyModel);
-                    await _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel));
-                    break;
+                    await _stepHandlers.ReadyStep.Execute(chatId, notifyModel); break;
             }
         }
 

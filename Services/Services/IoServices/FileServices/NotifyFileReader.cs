@@ -25,7 +25,7 @@ namespace Services.Services.IoServices.FileServices
 
             using var sr = GetStreamReader(chatId);
 
-            string currentLine;
+            string? currentLine;
             while ((currentLine = await sr.ReadLineAsync()) != null)
             {
                 models.Add(NotifyModel.FromString(currentLine));
@@ -40,7 +40,7 @@ namespace Services.Services.IoServices.FileServices
             {
                 using var sr = GetStreamReader(chatId);
 
-                string ln;
+                string? ln;
                 while ((ln = await sr.ReadLineAsync()) != null)
                 {
                     var model = NotifyModel.FromString(ln);

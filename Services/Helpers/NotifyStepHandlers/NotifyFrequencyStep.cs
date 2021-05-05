@@ -1,20 +1,19 @@
 ﻿using Common.Common;
+using Common.Common.CallbackModels;
+using Common.Common.Enum;
 using System.Threading.Tasks;
-using Common;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Services.Helpers.NotifyStepHandlers
 {
-    public class NotifyFrequencyStep : INotifyStepHandler
+    public class NotifyFrequencyStep : INotifyStep
     {
         private readonly TelegramBotClient _bot;
-        private readonly NotifyModifier _notifyModifier;
 
-        public NotifyFrequencyStep(TelegramBotClient bot, NotifyModifier notifyModifier)
+        public NotifyFrequencyStep(TelegramBotClient bot)
         {
             _bot = bot;
-            _notifyModifier = notifyModifier;
         }
 
         public async Task Execute(long chatId, NotifyModel notifyModel)
@@ -25,17 +24,17 @@ namespace Services.Helpers.NotifyStepHandlers
                 {
                     new InlineKeyboardButton
                     {
-                        CallbackData = string.Join(CommonResource.Separator, "frequency","0"),
+                        CallbackData = CallbackFrequency.ToCallBack(FrequencyType.Once),
                         Text = "Один раз"
                     },
                     new InlineKeyboardButton
                     {
-                        CallbackData = "1",
+                        CallbackData = CallbackFrequency.ToCallBack(FrequencyType.Minute),
                         Text = "Каждую минуту"
                     },
                     new InlineKeyboardButton
                     {
-                        CallbackData = "2",
+                        CallbackData = CallbackFrequency.ToCallBack(FrequencyType.Hour),
                         Text = "Каждый час"
                     },
                 },
@@ -43,12 +42,12 @@ namespace Services.Helpers.NotifyStepHandlers
                 {
                     new InlineKeyboardButton
                     {
-                        CallbackData = "3",
+                        CallbackData = CallbackFrequency.ToCallBack(FrequencyType.Day),
                         Text = "Каждый день"
                     },
                     new InlineKeyboardButton
                     {
-                        CallbackData = "4",
+                        CallbackData = CallbackFrequency.ToCallBack(FrequencyType.Week),
                         Text = "Каждую неделю"
                     },
                 },
@@ -56,18 +55,18 @@ namespace Services.Helpers.NotifyStepHandlers
                 {
                     new InlineKeyboardButton
                     {
-                        CallbackData = "5",
+                        CallbackData = CallbackFrequency.ToCallBack(FrequencyType.Month),
                         Text = "Каждый месяц"
                     },
                     new InlineKeyboardButton
                     {
-                        CallbackData = "99",
+                        CallbackData = CallbackFrequency.ToCallBack(FrequencyType.Custom),
                         Text = "Укажите свой период"
                     }
                 }
             });
 
-            await _bot.SendTextMessageAsync(chatId, _notifyModifier.GetNextStepMessage(notifyModel), replyMarkup: markup);
+            await _bot.SendTextMessageAsync(chatId, notifyModel.GetNextStepMessage(), replyMarkup: markup);
         }
     }
 }

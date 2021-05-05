@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Services.Helpers.NotifyStepHandlers
 {
-    public interface INotifyStepHandler
+    public interface INotifyStep
     {
         Task Execute(long chatId, NotifyModel notifyModel);
     }

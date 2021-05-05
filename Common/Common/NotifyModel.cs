@@ -18,6 +18,14 @@ namespace Common.Common
         public void ChangeName(string newName) => Name = newName;
         public void ChangeDate(DateTimeOffset date) => Date = date;
 
+        public string GetNextStepMessage() => NextStep switch
+        {
+            NotifyStep.Date => "Введите дату и время в формате 01.01.2021 00:00",
+            NotifyStep.Frequency => "Выберите периодичность",
+            NotifyStep.Ready => "Готово",
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
         public static NotifyModel FromString(string modelString)
         {
             var properties = modelString.Split(CommonResource.Separator);
@@ -38,10 +46,10 @@ namespace Common.Common
         }
 
         /// <summary>
-        /// Return NotifyModel as string representation with the order of properties (ChatId, NotifyId, Name, Date)
+        /// Return NotifyModel as string representation with the order of properties (ChatId, NotifyId, Name, Date, Frequency)
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"));
+        public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"), (int)Frequency);
 
         public override bool Equals(object obj)
         {
