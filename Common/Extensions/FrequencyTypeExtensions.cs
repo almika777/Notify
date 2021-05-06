@@ -12,7 +12,7 @@ namespace Common.Extensions
             Type type = enumerationValue.GetType();
             if (!type.IsEnum)
             {
-                throw new ArgumentException("EnumerationValue must be of Enum type", "enumerationValue");
+                throw new ArgumentException("EnumerationValue must be of Enum type", nameof(enumerationValue));
             }
 
             MemberInfo[] memberInfo = type.GetMember(enumerationValue.ToString()!);

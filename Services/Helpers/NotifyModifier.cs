@@ -1,6 +1,8 @@
 ﻿using Common.Common;
 using Common.Common.Enum;
 using System;
+using System.Globalization;
+using Common;
 
 namespace Services.Helpers
 {
@@ -21,7 +23,10 @@ namespace Services.Helpers
                 case NotifyStep.Name:
                     model.Name = data; break;
                 case NotifyStep.Date:
-                    model.Date = DateTimeOffset.TryParse(data, out var date) ? date : throw new FormatException("Неверный формат даты");
+                    model.Date = DateTimeOffset
+                        .TryParseExact(data, CommonResource.DateFormats, new DateTimeFormatInfo(), DateTimeStyles.None, out var date)
+                        ? date 
+                        : throw new FormatException("Неверный формат даты");
                     break;
                 case NotifyStep.Frequency:
                     model.Frequency = (FrequencyType)int.Parse(data);

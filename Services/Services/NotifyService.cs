@@ -16,7 +16,6 @@ namespace Services.Services
     public class NotifyService
     {
         private readonly TelegramBotClient _bot;
-        private readonly INotifyWriter _writer;
         private readonly INotifyEditor _editor;
         private readonly NotifyCacheService _cache;
         private readonly NotifyStepHandlers _stepHandlers;
@@ -27,7 +26,6 @@ namespace Services.Services
 
         public NotifyService(
             TelegramBotClient bot,
-            INotifyWriter writer,
             INotifyEditor editor,
             NotifyCacheService cache,
             NotifyStepHandlers stepHandlers,
@@ -37,7 +35,6 @@ namespace Services.Services
             ILogger<NotifyService> logger)
         {
             _bot = bot;
-            _writer = writer;
             _editor = editor;
             _cache = cache;
             _stepHandlers = stepHandlers;
