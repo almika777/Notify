@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Text;
+using System.Threading;
 using Common.Common.Enum;
+using Common.Extensions;
 
 #pragma warning disable 659
 
@@ -29,19 +32,22 @@ namespace Common.Common
         public static NotifyModel FromString(string modelString)
         {
             var properties = modelString.Split(CommonResource.Separator);
-            
+
             return new NotifyModel
             {
                 ChatId = long.TryParse(properties[0], out var chatId)
                     ? chatId
                     : throw new FormatException($"Мы как-то записали неверный формат {nameof(ChatId)}"),
-                NotifyId = Guid.TryParse(properties[1], out var notifyId) 
-                    ? notifyId 
+                NotifyId = Guid.TryParse(properties[1], out var notifyId)
+                    ? notifyId
                     : throw new FormatException($"Мы как-то записали неверный формат {nameof(NotifyId)}"),
                 Name = properties[2],
                 Date = DateTimeOffset.TryParse(properties[3], out var date)
                     ? date
                     : throw new FormatException($"Мы как-то записали неверный формат {nameof(Date)}"),
+                Frequency = int.TryParse(properties[4], out var frequency)
+                    ? (FrequencyType)frequency
+                    : throw new FormatException($"Мы как-то записали неверный формат {nameof(Frequency)}"),
             };
         }
 
@@ -51,6 +57,14 @@ namespace Common.Common
         /// <returns></returns>
         public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"), (int)Frequency);
 
+        public string ToTelegramChat()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($@"<b>Что</b>: {Name}</n>");
+            sb.AppendLine($@"<b>Когда</b>: {Date:g}");
+            sb.AppendLine($@"<b>Как часто</b>: {Frequency.GetDescription()}");
+            return sb.ToString();
+        }
         public override bool Equals(object obj)
         {
             var model = obj as NotifyModel;

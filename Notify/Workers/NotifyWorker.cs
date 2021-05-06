@@ -3,11 +3,15 @@ using Microsoft.Extensions.Hosting;
 using Services.Services;
 using Services.Services.IoServices;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Common;
+using Common.Common.Enum;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
 
 namespace Notify.Workers
 {
@@ -34,16 +38,23 @@ namespace Notify.Workers
             {
                 var notifications = cache.ByUser
                     .SelectMany(x => x.Value)
-                    .Where(x => Math.Abs((x.Value.Date - DateTimeOffset.Now).TotalSeconds) < 35)
+                    .Where(x =>
+                        (x.Value.Date - DateTimeOffset.Now).TotalSeconds < 30)
                     .ToImmutableArray();
 
                 if (notifications.Any())
                 {
                     var tasks = notifications.AsParallel().Select(async x =>
                     {
+                        if (x.Value.Frequency != FrequencyType.Once)
+                        {
+                            await bot.SendTextMessageAsync(x.Value.ChatId, x.Value.ToTelegramChat(), ParseMode.Html);
+                            ChangeNotifyDate(x);
+                            return;
+                        }
+
                         cache.ByUser[x.Value.ChatId].Remove(x);
                         await remover.Remove(x.Value);
-                        await bot.SendTextMessageAsync(x.Value.ChatId, x.ToString());
                     });
 
                     await Task.WhenAll(tasks);
@@ -51,6 +62,20 @@ namespace Notify.Workers
 
                 await Task.Delay(TimeSpan.FromSeconds(30));
             }
+        }
+
+        private void ChangeNotifyDate(KeyValuePair<Guid, NotifyModel> x)
+        {
+            var date = x.Value.Date;
+            x.Value.Date = x.Value.Frequency switch
+            {
+                FrequencyType.Minute => date.AddMinutes(1),
+                FrequencyType.Hour => date.AddHours(1),
+                FrequencyType.Day => date.AddDays(1),
+                FrequencyType.Week => date.AddDays(7),
+                FrequencyType.Month => date.AddMonths(1),
+                _ => x.Value.Date
+            };
         }
 
         private void StartBot(IServiceScope scope, ITelegramBotClient bot)
