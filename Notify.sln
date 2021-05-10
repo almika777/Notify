@@ -9,11 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotifyTests", "NotifyWriter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonTests", "TestsCommon\CommonTests.csproj", "{53FCCF27-02EA-42B6-BF56-BE6C27C37D79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{C6C972BB-13F7-431E-B4CB-9028ABCEF501}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{C6C972BB-13F7-431E-B4CB-9028ABCEF501}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{1F8B2312-955A-4611-B9EC-99F5D7D06C75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{1F8B2312-955A-4611-B9EC-99F5D7D06C75}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B20BEFFC-0B97-4329-8D41-FD81A3BF5C5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Context", "Context\Context.csproj", "{AE964C1D-5E37-4F95-854B-B70548218069}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{1F8B2312-955A-4611-B9EC-99F5D7D06C75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F8B2312-955A-4611-B9EC-99F5D7D06C75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F8B2312-955A-4611-B9EC-99F5D7D06C75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE964C1D-5E37-4F95-854B-B70548218069}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE964C1D-5E37-4F95-854B-B70548218069}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE964C1D-5E37-4F95-854B-B70548218069}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE964C1D-5E37-4F95-854B-B70548218069}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

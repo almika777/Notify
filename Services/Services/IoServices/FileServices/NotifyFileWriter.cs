@@ -1,11 +1,12 @@
-﻿using Common.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
+using Common.Models;
 
 #pragma warning disable 8620
 
@@ -22,11 +23,11 @@ namespace Services.Services.IoServices.FileServices
             _config = config.Value;
         }
 
-        public async Task Write(NotifyModel model)
+        public async Task Write(Notify model)
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return;
 
-            var path = Path.Combine(_config.CacheFolder!, $@"{model.ChatId}.txt");
+            var path = Path.Combine(_config.CacheFolder!, $@"{model.UserId}.txt");
 
             try
             {
@@ -41,13 +42,13 @@ namespace Services.Services.IoServices.FileServices
             }
         }
 
-        public async Task Write(IEnumerable<NotifyModel> models)
+        public async Task Write(IEnumerable<Notify> models)
         {
             var notifyModels = models.ToArray();
 
             if (string.IsNullOrEmpty(_config.CacheFolder) || !notifyModels.Any()) return;
 
-            var chatId = notifyModels.First().ChatId;
+            var chatId = notifyModels.First().UserId;
             var path = Path.Combine(_config.CacheFolder!, $@"{chatId}.txt");
 
             try

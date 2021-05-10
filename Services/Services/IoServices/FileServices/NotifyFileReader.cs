@@ -1,10 +1,11 @@
-﻿using Common.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Common;
+using Common.Models;
 
 namespace Services.Services.IoServices.FileServices
 {
@@ -19,22 +20,22 @@ namespace Services.Services.IoServices.FileServices
             _config = config.Value;
         }
 
-        public async Task<IEnumerable<NotifyModel>> ReadAll(long chatId)
+        public async Task<IEnumerable<Notify>> ReadAll(long chatId)
         {
-            var models = new List<NotifyModel>();
+            var models = new List<Notify>();
 
             using var sr = GetStreamReader(chatId);
 
             string? currentLine;
             while ((currentLine = await sr.ReadLineAsync()) != null)
             {
-                models.Add(NotifyModel.FromString(currentLine));
+                models.Add(Notify.FromString(currentLine));
             }
 
             return models;
         }
 
-        public async Task<NotifyModel> Read(long chatId, Guid notifyId)
+        public async Task<Notify> Read(long chatId, Guid notifyId)
         {
             try
             {
@@ -43,17 +44,17 @@ namespace Services.Services.IoServices.FileServices
                 string? ln;
                 while ((ln = await sr.ReadLineAsync()) != null)
                 {
-                    var model = NotifyModel.FromString(ln);
+                    var model = Notify.FromString(ln);
                     if (model.NotifyId == notifyId) return model;
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Ой ей ей");
-                return new NotifyModel();
+                return new Notify();
             }
 
-            return new NotifyModel();
+            return new Notify();
         }
 
         private StreamReader GetStreamReader(long chatId)

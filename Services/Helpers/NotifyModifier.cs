@@ -1,22 +1,22 @@
-﻿using Common.Common;
-using Common.Common.Enum;
+﻿using Common;
 using System;
 using System.Globalization;
-using Common;
+using Common.Enum;
+using Common.Models;
 
 namespace Services.Helpers
 {
     public class NotifyModifier
     {
-        public NotifyModel CreateOrUpdate(NotifyModel? model, long chatId, string data)
+        public Notify CreateOrUpdate(Notify? model, long chatId, string data)
         {
-            var newModel = model ?? new NotifyModel { ChatId = chatId, NotifyId = Guid.NewGuid(), Name = data };
+            var newModel = model ?? new Notify { UserId = chatId, NotifyId = Guid.NewGuid(), Name = data };
             return Update(newModel, data);
         }
 
-        public NotifyModel CreateOrUpdate(NotifyModel? model, string data) => Update(model!, data);
+        public Notify CreateOrUpdate(Notify? model, string data) => Update(model!, data);
 
-        private NotifyModel Update(NotifyModel model, string data)
+        private Notify Update(Notify model, string data)
         {
             switch (model.NextStep)
             {
@@ -47,7 +47,7 @@ namespace Services.Helpers
             return UpdateState(model);
         }
 
-        private NotifyModel UpdateState(NotifyModel model)
+        private Notify UpdateState(Notify model)
         {
             model.NextStep = model.NextStep switch
             {

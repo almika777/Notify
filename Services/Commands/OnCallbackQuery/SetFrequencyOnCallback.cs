@@ -1,8 +1,8 @@
 ﻿using System;
-using Common.Common.CallbackModels;
-using Common.Common.Enum;
 using Services.Services;
 using System.Threading.Tasks;
+using Common.CallbackModels;
+using Common.Enum;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
 using Telegram.Bot;

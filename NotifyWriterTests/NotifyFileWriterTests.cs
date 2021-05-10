@@ -1,10 +1,10 @@
-using Common.Common;
+using Common;
 using CommonTests;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
-using System.IO;
 using Services.Services.IoServices;
-using Services.Services.IoServices.File;
+using System.IO;
+using Services.Services.IoServices.FileServices;
 
 namespace NotifyTests
 {
@@ -17,7 +17,7 @@ namespace NotifyTests
         public void Setup()
         {
             _config = GlobalConfig.GetDefault().Value;
-            _writer = new NotifyFileWriterService(GlobalConfig.GetDefault(), new NullLogger<NotifyFileWriterService>());
+            _writer = new NotifyFileWriter(GlobalConfig.GetDefault(), new NullLogger<NotifyFileWriter>());
         }
 
         [Test]

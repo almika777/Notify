@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Common.Common.Enum
+namespace Common.Enum
 {
     public enum FrequencyType
     {

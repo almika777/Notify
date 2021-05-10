@@ -1,7 +1,7 @@
-﻿using Common.Common.Enum;
-using System;
+﻿using System;
+using Common.Enum;
 
-namespace Common.Common.CallbackModels
+namespace Common.CallbackModels
 {
     public class CallbackFrequency
     {

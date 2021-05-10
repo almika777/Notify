@@ -1,11 +1,12 @@
-﻿using Common.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
+using Common.Models;
 
 namespace Services.Services.IoServices.FileServices
 {
@@ -28,17 +29,17 @@ namespace Services.Services.IoServices.FileServices
             _logger = logger;
         }
 
-        public async Task<bool> Remove(NotifyModel model)
+        public async Task<bool> Remove(Notify model)
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return false;
 
-            var path = Path.Combine(_config.CacheFolder!, $@"{model.ChatId}.txt");
+            var path = Path.Combine(_config.CacheFolder!, $@"{model.UserId}.txt");
 
             if (!File.Exists(path)) throw new FileNotFoundException("Не нашли файлик");
 
             try
             {
-                var models = (await _reader.ReadAll(model.ChatId)).ToImmutableArray();
+                var models = (await _reader.ReadAll(model.UserId)).ToImmutableArray();
                 File.Delete(path);
 
                 await _writer.Write(models.Where(x => !x.Equals(model)));

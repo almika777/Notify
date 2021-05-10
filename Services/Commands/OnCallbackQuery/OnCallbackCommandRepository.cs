@@ -1,5 +1,4 @@
 ﻿using Common;
-using Common.Common;
 using Microsoft.Extensions.Logging;
 using Services.Commands.OnCallbackQuery.Edit;
 using Services.Commands.OnMessage;
@@ -8,6 +7,7 @@ using Services.Services.IoServices;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Common.CallbackModels;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
 using Telegram.Bot;

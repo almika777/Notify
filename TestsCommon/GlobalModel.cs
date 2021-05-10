@@ -1,16 +1,15 @@
-﻿using Common.Common;
-using System;
-using Common.Common.Enum;
+﻿using System;
+using Common.Enum;
 
 namespace CommonTests
 {
     public class GlobalModel
     {
-        public static NotifyModel GetModel()
+        public static Common.Models.Notify GetModel()
         {
-            return new NotifyModel
+            return new Common.Models.Notify
             {
-                ChatId = 1,
+                UserId = 1,
                 Date = new DateTimeOffset(new DateTime(2021, 01, 01)),
                 Name = "model",
                 NextStep = NotifyStep.Ready,
@@ -18,11 +17,11 @@ namespace CommonTests
             };
         }
 
-        public static NotifyModel GetModel(NotifyStep step)
+        public static Common.Models.Notify GetModel(NotifyStep step)
         {
-            return new NotifyModel
+            return new Common.Models.Notify
             {
-                ChatId = 1,
+                UserId = 1,
                 Date = new DateTimeOffset(new DateTime(2021, 01, 01)),
                 Name = "model",
                 NextStep = step,

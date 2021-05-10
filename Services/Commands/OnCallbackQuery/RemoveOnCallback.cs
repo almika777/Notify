@@ -1,9 +1,9 @@
 ﻿using Common;
-using Common.Common;
 using Services.Commands.OnMessage;
 using Services.Services;
 using Services.Services.IoServices;
 using System.Threading.Tasks;
+using Common.CallbackModels;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 // ReSharper disable PossibleNullReferenceException

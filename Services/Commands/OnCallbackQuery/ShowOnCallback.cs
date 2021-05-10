@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common;
-using Common.Common;
+using Common.CallbackModels;
 using Services.Services;
 using Telegram.Bot;
 using Telegram.Bot.Args;

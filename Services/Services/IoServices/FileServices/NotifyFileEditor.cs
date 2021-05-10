@@ -1,10 +1,11 @@
-﻿using Common.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
+using Common.Models;
 
 namespace Services.Services.IoServices.FileServices
 {
@@ -27,7 +28,7 @@ namespace Services.Services.IoServices.FileServices
             _config = config.Value;
         }
 
-        public async Task<bool> Edit(long chatId, NotifyModel model)
+        public async Task<bool> Edit(long chatId, Notify model)
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return false;
 

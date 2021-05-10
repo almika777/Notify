@@ -1,4 +1,4 @@
-﻿using Common.Common;
+﻿using Common;
 using Microsoft.Extensions.Options;
 
 namespace CommonTests

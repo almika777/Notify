@@ -1,6 +1,6 @@
-﻿using Common.Common;
-using Services.Services;
+﻿using Services.Services;
 using System.Threading.Tasks;
+using Common.Models;
 using Telegram.Bot;
 
 namespace Services.Helpers.NotifyStepHandlers
@@ -16,7 +16,7 @@ namespace Services.Helpers.NotifyStepHandlers
             _cache = cache;
         }
 
-        public async Task Execute(long chatId, NotifyModel notifyModel)
+        public async Task Execute(long chatId, Notify notifyModel)
         {
             _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
             await _bot.SendTextMessageAsync(chatId, notifyModel.GetNextStepMessage());

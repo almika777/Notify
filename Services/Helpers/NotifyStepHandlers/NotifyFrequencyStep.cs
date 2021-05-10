@@ -1,7 +1,7 @@
-﻿using Common.Common;
-using Common.Common.CallbackModels;
-using Common.Common.Enum;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Common.CallbackModels;
+using Common.Enum;
+using Common.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -16,7 +16,7 @@ namespace Services.Helpers.NotifyStepHandlers
             _bot = bot;
         }
 
-        public async Task Execute(long chatId, NotifyModel notifyModel)
+        public async Task Execute(long chatId, Notify notifyModel)
         {
             var markup = new InlineKeyboardMarkup(new[]
             {

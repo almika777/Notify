@@ -1,5 +1,4 @@
-﻿using Common.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
@@ -7,6 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
+using Common.Enum;
+using Common.Models;
+using Context;
 
 namespace Services.Services
 {
@@ -17,12 +20,12 @@ namespace Services.Services
         public ConcurrentDictionary<long, (Guid NotifyId, EditField FieldType)> EditCache { get; }
             = new ConcurrentDictionary<long, (Guid NotifyId, EditField FieldType)>();
 
-        public ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>> ByUser { get; }
-            = new ConcurrentDictionary<long, IDictionary<Guid, NotifyModel>>();
+        public ConcurrentDictionary<long, IDictionary<Guid, Notify>> ByUser { get; }
+            = new ConcurrentDictionary<long, IDictionary<Guid, Notify>>();
 
 
-        public readonly ConcurrentDictionary<long, NotifyModel> InProgressNotifications =
-            new ConcurrentDictionary<long, NotifyModel>();
+        public readonly ConcurrentDictionary<long, Notify> InProgressNotifications =
+            new ConcurrentDictionary<long, Notify>();
 
 
         private readonly Configuration _config;
@@ -55,7 +58,7 @@ namespace Services.Services
                 {
                     ByUser.TryAdd(key, value.Result
                         .Where(x => x.Length > 1)
-                        .Select(NotifyModel.FromString)
+                        .Select(Notify.FromString)
                         .ToDictionary(x => x.NotifyId));
                 }
 
@@ -68,20 +71,20 @@ namespace Services.Services
 
         }
 
-        public bool TryAddToMemory(NotifyModel model)
+        public bool TryAddToMemory(Notify model)
         {
-            if (!ByUser.ContainsKey(model.ChatId))
+            if (!ByUser.ContainsKey(model.UserId))
             {
-                return ByUser.TryAdd(model.ChatId, new Dictionary<Guid, NotifyModel> { { model.NotifyId, model } });
+                return ByUser.TryAdd(model.UserId, new Dictionary<Guid, Notify> { { model.NotifyId, model } });
             }
 
-            ByUser[model.ChatId].Add(model.NotifyId, model);
+            ByUser[model.UserId].Add(model.NotifyId, model);
             return true;
         }
 
-        public bool TryRemoveFromCurrent(NotifyModel model)
+        public bool TryRemoveFromCurrent(Notify model)
         {
-            return InProgressNotifications.TryRemove(new KeyValuePair<long, NotifyModel>(model.ChatId, model));
+            return InProgressNotifications.TryRemove(new KeyValuePair<long, Notify>(model.UserId, model));
         }
     }
 }

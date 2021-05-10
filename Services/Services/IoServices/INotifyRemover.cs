@@ -1,11 +1,11 @@
 ﻿using System.Threading.Tasks;
-using Common.Common;
+using Common.Models;
 
 namespace Services.Services.IoServices
 {
     // ReSharper disable once InconsistentNaming
     public interface INotifyRemover
     {
-        public Task<bool> Remove(NotifyModel model);
+        public Task<bool> Remove(Notify model);
     }
 }

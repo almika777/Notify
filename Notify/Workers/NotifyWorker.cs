@@ -10,8 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
-using Common.Common;
-using Common.Common.Enum;
+using Common.Enum;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -50,12 +49,12 @@ namespace Notify.Workers
                     {
                         if (x.Value.Frequency != FrequencyType.Once)
                         {
-                            await bot.SendTextMessageAsync(x.Value.ChatId, x.Value.ToTelegramChat(), ParseMode.Html);
+                            await bot.SendTextMessageAsync(x.Value.UserId, x.Value.ToTelegramChat(), ParseMode.Html);
                             ChangeNotifyDate(x);
                             return;
                         }
 
-                        cache.ByUser[x.Value.ChatId].Remove(x);
+                        cache.ByUser[x.Value.UserId].Remove(x);
                         await remover.Remove(x.Value);
                     });
 
@@ -66,7 +65,7 @@ namespace Notify.Workers
             }
         }
 
-        private void ChangeNotifyDate(KeyValuePair<Guid, NotifyModel> x)
+        private void ChangeNotifyDate(KeyValuePair<Guid, Common.Models.Notify> x)
         {
             var date = x.Value.Date;
             x.Value.Date = x.Value.Frequency switch

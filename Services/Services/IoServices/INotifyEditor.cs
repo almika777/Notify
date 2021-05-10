@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Common.Common;
+﻿using System.Threading.Tasks;
+using Common.Models;
 
 namespace Services.Services.IoServices
 {
     public interface INotifyEditor
     {
-        Task<bool> Edit(long chatId, NotifyModel model);
+        Task<bool> Edit(long chatId, Notify model);
     }
 }

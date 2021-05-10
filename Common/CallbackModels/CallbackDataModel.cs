@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Common.Common
+namespace Common.CallbackModels
 {
     public class CallbackDataModel
     {

@@ -1,4 +1,4 @@
-﻿namespace Common.Common
+﻿namespace Common
 {
     public class Configuration
     {

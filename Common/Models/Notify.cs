@@ -1,16 +1,22 @@
-﻿using Common.Common.Enum;
+﻿using Common.Enum;
 using Common.Extensions;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 #pragma warning disable 659
 
-namespace Common.Common
+namespace Common.Models
 {
-    public class NotifyModel
+    public class Notify
     {
-        public long ChatId { get; set; }
+        [Key]
         public Guid NotifyId { get; set; }
+
+        [ForeignKey("UserId")]
+        public virtual ChatUser ChatUser { get; set; }
+        public long UserId { get; set; }
         public DateTimeOffset Date { get; set; }
         public NotifyStep NextStep { get; set; }
         public FrequencyType Frequency { get; set; }
@@ -28,15 +34,15 @@ namespace Common.Common
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        public static NotifyModel FromString(string modelString)
+        public static Notify FromString(string modelString)
         {
             var properties = modelString.Split(CommonResource.Separator);
 
-            return new NotifyModel
+            return new Notify
             {
-                ChatId = long.TryParse(properties[0], out var chatId)
+                UserId = long.TryParse(properties[0], out var chatId)
                     ? chatId
-                    : throw new FormatException($"Мы как-то записали неверный формат {nameof(ChatId)}"),
+                    : throw new FormatException($"Мы как-то записали неверный формат {nameof(UserId)}"),
                 NotifyId = Guid.TryParse(properties[1], out var notifyId)
                     ? notifyId
                     : throw new FormatException($"Мы как-то записали неверный формат {nameof(NotifyId)}"),
@@ -54,7 +60,7 @@ namespace Common.Common
         /// Return NotifyModel as string representation with the order of properties (ChatId, NotifyId, Name, Date, Frequency)
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"), (int)Frequency);
+        public override string ToString() => string.Join(CommonResource.Separator, UserId, NotifyId, Name, Date.ToString("g"), (int)Frequency);
 
         public string ToTelegramChat()
         {
@@ -66,11 +72,11 @@ namespace Common.Common
         }
         public override bool Equals(object obj)
         {
-            var model = obj as NotifyModel;
+            var model = obj as Notify;
 
             if (model == null) return false;
 
-            return ChatId == model.ChatId && NotifyId == model.NotifyId;
+            return UserId == model.UserId && NotifyId == model.NotifyId;
         }
     }
 }

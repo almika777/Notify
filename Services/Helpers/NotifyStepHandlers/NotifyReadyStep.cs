@@ -1,7 +1,7 @@
-﻿using Common.Common;
-using Services.Services;
+﻿using Services.Services;
 using Services.Services.IoServices;
 using System.Threading.Tasks;
+using Common.Models;
 using Telegram.Bot;
 
 namespace Services.Helpers.NotifyStepHandlers
@@ -19,7 +19,7 @@ namespace Services.Helpers.NotifyStepHandlers
             _bot = bot;
         }
 
-        public async Task Execute(long chatId, NotifyModel notifyModel)
+        public async Task Execute(long chatId, Notify notifyModel)
         {
             _cache.TryRemoveFromCurrent(notifyModel);
             _cache.TryAddToMemory(notifyModel);
