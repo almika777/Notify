@@ -87,13 +87,11 @@ namespace Services.Services
             switch (notifyModel!.NextStep)
             {
                 case NotifyStep.Date:
-                    _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
-                    await _bot.SendTextMessageAsync(chatId, notifyModel.GetNextStepMessage());
-                    break;
+                    await _stepHandlers.DateStep.Execute(chatId, notifyModel); return;
                 case NotifyStep.Frequency:
-                    await _stepHandlers.FrequencyStep.Execute(chatId, notifyModel); break;
+                    await _stepHandlers.FrequencyStep.Execute(chatId, notifyModel); return;
                 case NotifyStep.Ready:
-                    await _stepHandlers.ReadyStep.Execute(chatId, notifyModel); break;
+                    await _stepHandlers.ReadyStep.Execute(chatId, notifyModel); return;
             }
         }
 

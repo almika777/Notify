@@ -50,6 +50,11 @@ namespace Services.Commands.OnCallbackQuery.Edit
                 {
                     Text = "Дату",
                     CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNotifyDate, model!.NotifyId),
+                },
+                new InlineKeyboardButton
+                {
+                    Text = "Частоту",
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNotifyFrequency, model!.NotifyId),
                 }
             });
 

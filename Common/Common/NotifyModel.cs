@@ -1,8 +1,7 @@
-﻿using System;
-using System.Text;
-using System.Threading;
-using Common.Common.Enum;
+﻿using Common.Common.Enum;
 using Common.Extensions;
+using System;
+using System.Text;
 
 #pragma warning disable 659
 
@@ -16,7 +15,7 @@ namespace Common.Common
         public NotifyStep NextStep { get; set; }
         public FrequencyType Frequency { get; set; }
         public string Name { get; set; } = null!;
-
+        public TimeSpan FrequencyTime { get; set; }
 
         public void ChangeName(string newName) => Name = newName;
         public void ChangeDate(DateTimeOffset date) => Date = date;

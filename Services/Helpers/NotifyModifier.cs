@@ -25,12 +25,23 @@ namespace Services.Helpers
                 case NotifyStep.Date:
                     model.Date = DateTimeOffset
                         .TryParseExact(data, CommonResource.DateFormats, new DateTimeFormatInfo(), DateTimeStyles.None, out var date)
-                        ? date 
+                        ? date
                         : throw new FormatException("Неверный формат даты");
                     break;
                 case NotifyStep.Frequency:
-                    model.Frequency = (FrequencyType)int.Parse(data);
-                    break;
+                    {
+                        if (model.Frequency == FrequencyType.Custom)
+                        {
+                            var frequencyTime = TimeSpan.TryParse(data, out var time)
+                                ? time
+                                : throw new FormatException("Неверный формат времени");
+                            model.FrequencyTime = frequencyTime;
+                            break;
+                        }
+                        model.Frequency = (FrequencyType)int.Parse(data);
+                        break;
+                    }
+
             }
 
             return UpdateState(model);

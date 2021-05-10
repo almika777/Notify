@@ -8,11 +8,13 @@ namespace Services.Helpers.NotifyStepHandlers
     {
         public NotifyFrequencyStep FrequencyStep { get; }
         public NotifyReadyStep ReadyStep { get; }
+        public NotifyDateStep DateStep { get; }
 
         public NotifyStepHandlers(TelegramBotClient bot, INotifyWriter writer, NotifyCacheService cache)
         {
             FrequencyStep = new NotifyFrequencyStep(bot);
-            ReadyStep = new NotifyReadyStep(cache, writer, bot);
+            ReadyStep = new NotifyReadyStep(bot, cache, writer);
+            DateStep = new NotifyDateStep(bot, cache);
         }
     }
 }

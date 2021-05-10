@@ -12,7 +12,7 @@ namespace Services.Helpers.NotifyStepHandlers
         private readonly INotifyWriter _writer;
         private readonly TelegramBotClient _bot;
 
-        public NotifyReadyStep(NotifyCacheService cache, INotifyWriter writer, TelegramBotClient bot)
+        public NotifyReadyStep(TelegramBotClient bot, NotifyCacheService cache, INotifyWriter writer)
         {
             _cache = cache;
             _writer = writer;

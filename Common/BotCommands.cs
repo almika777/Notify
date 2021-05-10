@@ -15,6 +15,7 @@
             public static string EditEntry => "edit";
             public static string EditNotifyName => "edit_name";
             public static string EditNotifyDate => "edit_date";
+            public static string EditNotifyFrequency => "edit_frequency";
             public static string SetFrequency => "frequency";
         }
     }

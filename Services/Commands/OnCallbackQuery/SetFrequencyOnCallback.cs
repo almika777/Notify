@@ -1,4 +1,5 @@
-﻿using Common.Common.CallbackModels;
+﻿using System;
+using Common.Common.CallbackModels;
 using Common.Common.Enum;
 using Services.Services;
 using System.Threading.Tasks;
@@ -35,10 +36,18 @@ namespace Services.Commands.OnCallbackQuery
                 await _bot.SendTextMessageAsync(chatId, "");
                 return;
             }
+            var frequency = CallbackFrequency.FromCallback(e.CallbackQuery.Data);
+            model.Frequency = frequency;
 
-            model.Frequency = CallbackFrequency.FromCallback(e.CallbackQuery.Data);
-            _modifier.CreateOrUpdate(model, $"{(int)model.Frequency}");
-            await _stepHandlers.ReadyStep.Execute(chatId, model);
+            if (frequency == FrequencyType.Custom)
+            {
+                await _bot.SendTextMessageAsync(chatId, $@"Укажите как часто нужно воспроизводить в формате{Environment.NewLine}01.01.0001 00:00");
+            }
+            else
+            {
+                _modifier.CreateOrUpdate(model, $"{(int)model.Frequency}");
+                await _stepHandlers.ReadyStep.Execute(chatId, model);
+            }
         }
     }
 }
