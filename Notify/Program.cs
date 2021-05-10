@@ -1,15 +1,19 @@
 using Common;
+using Context;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Notify.Workers;
+using Services;
+using Services.Cache;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
-using Services.Services;
-using Services.Services.IoServices;
-using Services.Services.IoServices.FileServices;
+using Services.IoServices;
+using Services.IoServices.FileServices;
+using Services.IoServices.SQLiteServices;
 using Telegram.Bot;
 
 namespace Notify
@@ -22,12 +26,12 @@ namespace Notify
         {
             CreateHostBuilder(args).Build().Run();
         }
-        
+
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    Configure(hostContext,services);
+                    Configure(hostContext, services);
                     AddSingletonServices(services);
                     AddScopedServices(services);
 
@@ -50,9 +54,9 @@ namespace Notify
 
         private static void AddScopedServices(IServiceCollection services)
         {
-            services.AddScoped<INotifyWriter, NotifyFileWriter>();
-            services.AddScoped<INotifyReader, NotifyFileReader>();
-            services.AddScoped<INotifyRemover, NotifyFileRemove>();
+            services.AddScoped<INotifyWriter, NotifyWriter>();
+            services.AddScoped<INotifyReader, NotifyReader>();
+            services.AddScoped<INotifyRemover, NotifyRemover>();
             services.AddScoped<INotifyEditor, NotifyFileEditor>();
 
             services.AddScoped<NotifyStepHandlers>();
@@ -61,6 +65,8 @@ namespace Notify
 
             services.AddScoped<NotifyModifier>();
             services.AddScoped<NotifyService>();
+
+            services.AddDbContext<NotifyDbContext>(options => options.UseSqlite("Data Source=../../NotifiesDB.db;"));
         }
     }
 }

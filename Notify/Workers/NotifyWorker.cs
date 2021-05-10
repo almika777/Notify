@@ -1,16 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Common.Enum;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Services.Services;
-using Services.Services.IoServices;
+using Services;
+using Services.Cache;
+using Services.IoServices;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common;
-using Common.Enum;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -34,49 +33,43 @@ namespace Notify.Workers
 
             await cache.Initialize();
             StartBot(scope, bot);
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                var notifications = cache.ByUser
-                    .SelectMany(x => x.Value)
-                    .Where(x =>
-                        (x.Value.Date - DateTimeOffset.Now).TotalSeconds < 30)
-                    .ToImmutableArray();
-
-                if (notifications.Any())
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    var tasks = notifications.AsParallel().Select(async x =>
+                    var notifications = cache.ByUser
+                        .SelectMany(x => x.Value)
+                        .Where(x =>
+                            (x.Value.Date - DateTimeOffset.Now).TotalSeconds < 30)
+                        .ToImmutableArray();
+
+                    if (notifications.Any())
                     {
-                        if (x.Value.Frequency != FrequencyType.Once)
+                        var tasks = notifications.AsParallel().Select(async x =>
                         {
-                            await bot.SendTextMessageAsync(x.Value.UserId, x.Value.ToTelegramChat(), ParseMode.Html);
-                            ChangeNotifyDate(x);
-                            return;
-                        }
+                            if (x.Value.Frequency != FrequencyType.Once)
+                            {
+                                await bot.SendTextMessageAsync(x.Value.UserId, x.Value.ToTelegramChat(), ParseMode.Html);
+                                x.Value.Date += x.Value.FrequencyTime;
+                                return;
+                            }
 
-                        cache.ByUser[x.Value.UserId].Remove(x);
-                        await remover.Remove(x.Value);
-                    });
+                            cache.ByUser[x.Value.UserId].Remove(x);
+                            await remover.Remove(x.Value);
+                        });
 
-                    await Task.WhenAll(tasks);
+                        await Task.WhenAll(tasks);
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(30));
                 }
-
-                await Task.Delay(TimeSpan.FromSeconds(30));
             }
-        }
-
-        private void ChangeNotifyDate(KeyValuePair<Guid, Common.Models.Notify> x)
-        {
-            var date = x.Value.Date;
-            x.Value.Date = x.Value.Frequency switch
+            catch (Exception e)
             {
-                FrequencyType.Minute => date.AddMinutes(1),
-                FrequencyType.Hour => date.AddHours(1),
-                FrequencyType.Day => date.AddDays(1),
-                FrequencyType.Week => date.AddDays(7),
-                FrequencyType.Month => date.AddMonths(1),
-                _ => x.Value.Date
-            };
+                Console.WriteLine(e);
+                throw;
+            }
+            
         }
 
         private void StartBot(IServiceScope scope, ITelegramBotClient bot)
