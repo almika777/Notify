@@ -1,17 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Common.Enum;
+using Common.Models;
+using Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
-using Common.Enum;
-using Common.Models;
-using Context;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Services.Services
+namespace Services.Cache
 {
     public class NotifyCacheService
     {
@@ -23,43 +22,38 @@ namespace Services.Services
         public ConcurrentDictionary<long, IDictionary<Guid, Notify>> ByUser { get; }
             = new ConcurrentDictionary<long, IDictionary<Guid, Notify>>();
 
-
-        public readonly ConcurrentDictionary<long, Notify> InProgressNotifications =
+        public ConcurrentDictionary<long, Notify> InProgressNotifications { get; } =
             new ConcurrentDictionary<long, Notify>();
 
 
-        private readonly Configuration _config;
+        private readonly IServiceProvider _provider;
         private readonly ILogger<NotifyCacheService> _logger;
 
-        public NotifyCacheService(IOptions<Configuration> config, ILogger<NotifyCacheService> logger)
+        public NotifyCacheService(IServiceProvider provider, ILogger<NotifyCacheService> logger)
         {
-            _config = config.Value;
+            _provider = provider;
             _logger = logger;
         }
 
         public async Task Initialize()
         {
-            if (string.IsNullOrEmpty(_config.CacheFolder)
-                || !Directory.Exists(_config.CacheFolder)
-                || IsInitialized) return;
-
-            var directoryInfo = new DirectoryInfo(_config.CacheFolder);
-            var files = directoryInfo.GetFiles();
+            if (IsInitialized) return;
 
             try
             {
-                var readFilesTasks = files.ToDictionary(
-                    fileInfo => long.Parse(Path.GetFileNameWithoutExtension(fileInfo.Name)),
-                    fileInfo => File.ReadAllLinesAsync(fileInfo!.FullName));
-
-                await Task.WhenAll(readFilesTasks.Values);
-
-                foreach (var (key, value) in readFilesTasks)
+                using (var scope = _provider.CreateScope())
                 {
-                    ByUser.TryAdd(key, value.Result
-                        .Where(x => x.Length > 1)
-                        .Select(Notify.FromString)
-                        .ToDictionary(x => x.NotifyId));
+                    var context = scope.ServiceProvider.GetService<NotifyDbContext>();
+                    await using (context)
+                    {
+                        var models = await context!.Notifies.ToArrayAsync();
+                        var modelsByUser = models.GroupBy(x => x.UserId).ToDictionary(x => x.Key);
+
+                        foreach (var (key, value) in modelsByUser)
+                        {
+                            ByUser.TryAdd(key, value.ToDictionary(x => x.NotifyId));
+                        }
+                    }
                 }
 
                 IsInitialized = true;
@@ -68,7 +62,6 @@ namespace Services.Services
             {
                 _logger.LogError(e, "");
             }
-
         }
 
         public bool TryAddToMemory(Notify model)

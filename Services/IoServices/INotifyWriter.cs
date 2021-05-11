@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Common.Models;
 
-namespace Services.Services.IoServices
+namespace Services.IoServices
 {
     // ReSharper disable once InconsistentNaming
     public interface INotifyWriter

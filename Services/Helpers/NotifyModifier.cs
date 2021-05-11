@@ -10,7 +10,12 @@ namespace Services.Helpers
     {
         public Notify CreateOrUpdate(Notify? model, long chatId, string data)
         {
-            var newModel = model ?? new Notify { UserId = chatId, NotifyId = Guid.NewGuid(), Name = data };
+            var newModel = model ?? new Notify
+            {
+                UserId = chatId,
+                NotifyId = Guid.NewGuid(),
+                Name = data
+            };
             return Update(newModel, data);
         }
 

@@ -1,15 +1,15 @@
 ﻿using Common;
+using Common.CallbackModels;
 using Microsoft.Extensions.Logging;
+using Services.Cache;
 using Services.Commands.OnCallbackQuery.Edit;
 using Services.Commands.OnMessage;
-using Services.Services;
-using Services.Services.IoServices;
+using Services.Helpers;
+using Services.Helpers.NotifyStepHandlers;
+using Services.IoServices;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common.CallbackModels;
-using Services.Helpers;
-using Services.Helpers.NotifyStepHandlers;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -64,7 +64,7 @@ namespace Services.Commands.OnCallbackQuery
         {
             OnCallbackCommands.Add(BotCommands.OnCallback.Show, new ShowOnCallback(_cache, _bot));
             OnCallbackCommands.Add(BotCommands.OnCallback.Remove, new RemoveOnCallback(_messageCommandRepository, _fileRemover, _cache, _bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditEntry, new EditOnCallback(_messageCommandRepository, _fileRemover, _cache, _bot));
+            OnCallbackCommands.Add(BotCommands.OnCallback.EditEntry, new EditOnCallback(_cache, _bot));
             OnCallbackCommands.Add(BotCommands.OnCallback.SetFrequency, new SetFrequencyOnCallback(_cache, _bot, _modifier, _stepHandlers));
             InitEditors();
         }

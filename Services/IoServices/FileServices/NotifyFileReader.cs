@@ -1,13 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common;
+using Common.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Common;
-using Common.Models;
 
-namespace Services.Services.IoServices.FileServices
+namespace Services.IoServices.FileServices
 {
     public class NotifyFileReader : INotifyReader
     {
@@ -20,7 +20,7 @@ namespace Services.Services.IoServices.FileServices
             _config = config.Value;
         }
 
-        public async Task<IEnumerable<Notify>> ReadAll(long chatId)
+        public async Task<Notify[]> ReadAll(long chatId)
         {
             var models = new List<Notify>();
 
@@ -32,7 +32,7 @@ namespace Services.Services.IoServices.FileServices
                 models.Add(Notify.FromString(currentLine));
             }
 
-            return models;
+            return models.ToArray();
         }
 
         public async Task<Notify> Read(long chatId, Guid notifyId)

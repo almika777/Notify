@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common.Enum;
+using Microsoft.Extensions.Logging;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
-using Services.Services.IoServices;
 using System;
 using System.Threading.Tasks;
-using Common.Enum;
+using Services.Cache;
+using Services.IoServices;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
-namespace Services.Services
+namespace Services
 {
     public class NotifyService
     {

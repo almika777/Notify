@@ -1,11 +1,11 @@
 ﻿using Common.Enum;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Services;
 using Services.Cache;
 using Services.IoServices;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -18,10 +18,12 @@ namespace Notify.Workers
     public class NotifyWorker : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<NotifyWorker> _logger;
 
-        public NotifyWorker(IServiceProvider serviceProvider)
+        public NotifyWorker(IServiceProvider serviceProvider, ILogger<NotifyWorker> logger)
         {
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -66,10 +68,8 @@ namespace Notify.Workers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                _logger.LogError(e, "Упс");
             }
-            
         }
 
         private void StartBot(IServiceScope scope, ITelegramBotClient bot)

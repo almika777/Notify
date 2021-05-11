@@ -2,9 +2,9 @@ using Common;
 using CommonTests;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
-using Services.Services.IoServices;
+using Services.IoServices;
+using Services.IoServices.FileServices;
 using System.IO;
-using Services.Services.IoServices.FileServices;
 
 namespace NotifyTests
 {

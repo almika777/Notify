@@ -1,16 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common;
+using Common.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
-using Common.Models;
 
 #pragma warning disable 8620
 
-namespace Services.Services.IoServices.FileServices
+namespace Services.IoServices.FileServices
 {
     public class NotifyFileWriter : INotifyWriter
     {

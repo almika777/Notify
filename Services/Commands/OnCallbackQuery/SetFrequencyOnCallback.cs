@@ -1,10 +1,11 @@
-﻿using System;
-using Services.Services;
-using System.Threading.Tasks;
-using Common.CallbackModels;
+﻿using Common.CallbackModels;
 using Common.Enum;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Services.Cache;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 // ReSharper disable PossibleNullReferenceException
@@ -36,8 +37,10 @@ namespace Services.Commands.OnCallbackQuery
                 await _bot.SendTextMessageAsync(chatId, "");
                 return;
             }
+
             var frequency = CallbackFrequency.FromCallback(e.CallbackQuery.Data);
             model.Frequency = frequency;
+            model.FrequencyTime = GetFrequencyTime(frequency);
 
             if (frequency == FrequencyType.Custom)
             {
@@ -49,5 +52,16 @@ namespace Services.Commands.OnCallbackQuery
                 await _stepHandlers.ReadyStep.Execute(chatId, model);
             }
         }
+
+        private TimeSpan GetFrequencyTime(FrequencyType type) => type switch
+        {
+            FrequencyType.Day => TimeSpan.FromDays(1),
+            FrequencyType.Minute => TimeSpan.FromMinutes(1),
+            FrequencyType.Hour => TimeSpan.FromHours(1),
+            FrequencyType.Week => TimeSpan.FromDays(7),
+            FrequencyType.Once => TimeSpan.MaxValue,
+            FrequencyType.Custom => TimeSpan.MaxValue,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        };
     }
 }

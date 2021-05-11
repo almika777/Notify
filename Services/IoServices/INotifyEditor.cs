@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Common.Models;
 
-namespace Services.Services.IoServices
+namespace Services.IoServices
 {
     public interface INotifyEditor
     {

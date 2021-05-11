@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Common;
+﻿using Common;
 using Common.CallbackModels;
 using Services.Commands.OnMessage;
-using Services.Services;
-using Services.Services.IoServices;
+using System.Threading.Tasks;
+using Services.Cache;
+using Services.IoServices;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -15,19 +14,11 @@ namespace Services.Commands.OnCallbackQuery.Edit
 {
     public class EditOnCallback : ICallbackCommand
     {
-        private readonly OnMessageCommandRepository _messageCommandRepository;
-        private readonly INotifyRemover _notifyFileRemover;
         private readonly TelegramBotClient _bot;
         private readonly NotifyCacheService _cache;
 
-        public EditOnCallback(
-            OnMessageCommandRepository messageCommandRepository,
-            INotifyRemover notifyFileRemover,
-            NotifyCacheService cache,
-            TelegramBotClient bot)
+        public EditOnCallback(NotifyCacheService cache, TelegramBotClient bot)
         {
-            _messageCommandRepository = messageCommandRepository;
-            _notifyFileRemover = notifyFileRemover;
             _bot = bot;
             _cache = cache;
         }

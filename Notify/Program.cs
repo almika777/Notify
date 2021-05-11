@@ -5,6 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Notify.Workers;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
 using Services;
 using Services.Cache;
 using Services.Commands.OnCallbackQuery;
@@ -24,11 +27,20 @@ namespace Notify
 
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.RollingFile(new CompactJsonFormatter(), @"../../logs/log.json", shared: true)
+                .WriteTo.Console()
+                .CreateLogger();
+
             CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureServices((hostContext, services) =>
                 {
                     Configure(hostContext, services);
@@ -36,7 +48,7 @@ namespace Notify
                     AddScopedServices(services);
 
                     services.AddHostedService<NotifyWorker>();
-                });
+                }).UseSerilog();
 
         private static void Configure(HostBuilderContext hostContext, IServiceCollection services)
         {

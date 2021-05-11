@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Common;
+using Common.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
-using Common.Models;
 
-namespace Services.Services.IoServices.FileServices
+namespace Services.IoServices.FileServices
 {
     public class NotifyFileRemove : INotifyRemover
     {

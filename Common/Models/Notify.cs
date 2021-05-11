@@ -15,7 +15,7 @@ namespace Common.Models
         public Guid NotifyId { get; set; }
 
         [ForeignKey("UserId")]
-        public virtual ChatUser ChatUser { get; set; }
+        public virtual ChatUser ChatUser { get; set; } = null!;
         public long UserId { get; set; }
         public DateTimeOffset Date { get; set; }
         public NotifyStep NextStep { get; set; }
@@ -65,9 +65,12 @@ namespace Common.Models
         public string ToTelegramChat()
         {
             var sb = new StringBuilder();
-            sb.AppendLine($@"<b>Что</b>: {Name}</n>");
+            sb.AppendLine($@"{Name}{Environment.NewLine}");
             sb.AppendLine($@"<b>Когда</b>: {Date:g}");
-            sb.AppendLine($@"<b>Как часто</b>: {Frequency.GetDescription()}");
+
+            if (Frequency == FrequencyType.Once) return sb.ToString();
+
+            sb.AppendLine($@"<b>Следующий раз</b>: {(Date + FrequencyTime):g}");
             return sb.ToString();
         }
         public override bool Equals(object obj)
