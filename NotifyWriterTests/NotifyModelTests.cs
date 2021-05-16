@@ -1,44 +1,34 @@
-using CommonTests;
+﻿using Common.Enum;
+using Common.Models;
 using NUnit.Framework;
-using System;
-using Common;
 
 namespace NotifyTests
 {
-    public class NotifyModelTests : TestBase
+
+    public class NotifyModelTests
     {
-        private Configuration _config;
-        private Common.Models.NotifyModel _model;
+        private NotifyModel _model;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            _config = GlobalConfig.GetDefault().Value;
-            _model = GlobalModel.GetModel();
+            _model = new NotifyModel();
         }
 
         [Test]
-        public void ToStringTest()
+        public void GetNextStepMessageTest()
         {
-            var model = _model.ToString();
-            Assert.AreEqual(model, string.Join(CommonResource.Separator, _model.UserId, _model.NotifyId, _model.Name, _model.Date.ToString("g")));
-            Finish(_config);
-        }
+            _model.NextStep = NotifyStep.Name;
+            Assert.AreEqual(_model.GetNextStepMessage(), "Введите название");
 
-        [Test]
-        public void FromStringTest()
-        {
-            var stringModel = _model.ToString();
-            var model = Common.Models.NotifyModel.FromString(stringModel);
+            _model.NextStep = NotifyStep.Date;
+            Assert.AreEqual(_model.GetNextStepMessage(), "Введите дату и время в формате 01.01.2021 00:00");
 
-            var properties = stringModel.Split(CommonResource.Separator);
+            _model.NextStep = NotifyStep.Frequency;
+            Assert.AreEqual(_model.GetNextStepMessage(), "Выберите периодичность");
 
-            Assert.AreEqual(model.UserId, long.Parse(properties[0]));
-            Assert.AreEqual(model.NotifyId, Guid.Parse(properties[1]));
-            Assert.AreEqual(model.Name, properties[2]);
-            Assert.AreEqual(model.Date, DateTimeOffset.Parse(properties[3]));
-
-            Finish(_config);
+            _model.NextStep = NotifyStep.Ready;
+            Assert.AreEqual(_model.GetNextStepMessage(), "Готово");
         }
     }
 }

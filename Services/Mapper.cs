@@ -11,7 +11,7 @@ namespace Services
             CreateMap<ChatUserModel, ChatUser>();
             CreateMap<ChatUser, ChatUserModel>();           
             
-            CreateMap<NotifyModel, Notify>();
+            CreateMap<NotifyModel, Notify>().ForMember(x => x.ChatUser, x => x.MapFrom(z => z.ChatUserModel));
             CreateMap<Notify, NotifyModel>();
         }
     }

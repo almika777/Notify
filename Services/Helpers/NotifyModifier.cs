@@ -29,8 +29,15 @@ namespace Services.Helpers
             }
         }
 
-        public NotifyModel CreateOrUpdate(NotifyModel model, string data)
+        public NotifyModel CreateOrUpdate(NotifyModel? model, string data)
         {
+            if (model == null) return new NotifyModel
+            {
+                NextStep = NotifyStep.Date,
+                NotifyId = Guid.NewGuid(),
+                ChatUserModel = new ChatUserModel()
+            };
+
             switch (model.NextStep)
             {
                 case NotifyStep.Name:

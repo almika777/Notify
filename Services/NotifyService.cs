@@ -9,6 +9,7 @@ using Services.Helpers.NotifyStepHandlers;
 using Services.IoServices;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -25,23 +26,15 @@ namespace Services
         private readonly NotifyModifier _notifyModifier;
         private readonly ILogger<NotifyService> _logger;
 
-        public NotifyService(
-            TelegramBotClient bot,
-            INotifyEditor editor,
-            NotifyCacheService cache,
-            NotifyStepHandlers stepHandlers,
-            OnMessageCommandRepository messageCommandRepository,
-            OnCallbackRepository callbackRepository,
-            NotifyModifier notifyModifier,
-            ILogger<NotifyService> logger)
+        public NotifyService(IServiceProvider provider, ILogger<NotifyService> logger)
         {
-            _bot = bot;
-            _editor = editor;
-            _cache = cache;
-            _stepHandlers = stepHandlers;
-            _messageCommandRepository = messageCommandRepository;
-            _callbackRepository = callbackRepository;
-            _notifyModifier = notifyModifier;
+            _bot = provider.GetRequiredService<TelegramBotClient>();
+            _editor = provider.GetRequiredService<INotifyEditor>();
+            _cache = provider.GetRequiredService<NotifyCacheService>();
+            _stepHandlers = provider.GetRequiredService<NotifyStepHandlers>();
+            _messageCommandRepository = provider.GetRequiredService<OnMessageCommandRepository>();
+            _callbackRepository = provider.GetRequiredService<OnCallbackRepository>();
+            _notifyModifier = provider.GetRequiredService<NotifyModifier>();
             _logger = logger;
         }
 
@@ -95,7 +88,7 @@ namespace Services
             var chatId = e.Message.Chat.Id;
             _cache.InProgressNotifications.TryGetValue(chatId, out var model);
 
-            var notifyModel = _notifyModifier.CreateOrUpdate(model!, e.Message.Text);
+            var notifyModel = _notifyModifier.CreateOrUpdate(model, e.Message.Text);
 
             switch (notifyModel!.NextStep)
             {

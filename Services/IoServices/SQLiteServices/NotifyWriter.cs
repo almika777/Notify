@@ -20,7 +20,8 @@ namespace Services.IoServices.SQLiteServices
 
         public async Task Write(NotifyModel model)
         {
-            await _context.Notifies.AddAsync(_mapper.Map<Notify>(model));
+            var entity = _mapper.Map<Notify>(model);
+            await _context.Notifies.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
 

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Common.Models
+﻿namespace Common.Models
 {
     public class ChatUserModel
     {

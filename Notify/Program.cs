@@ -1,3 +1,4 @@
+using System.IO;
 using AutoMapper;
 using Common;
 using Context;
@@ -5,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Notify.Workers;
 using Serilog;
 using Serilog.Events;
@@ -18,7 +18,9 @@ using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
 using Services.IoServices;
 using Services.IoServices.SQLiteServices;
+using System.Threading.Tasks;
 using Telegram.Bot;
+using Mapper = AutoMapper.Mapper;
 
 namespace Notify
 {
@@ -26,7 +28,7 @@ namespace Notify
     {
         private static IConfigurationSection _configurationSection = null!;
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -37,7 +39,9 @@ namespace Notify
                 .WriteTo.Console()
                 .CreateLogger();
 
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args);
+            host.ConfigureServices(collection => AddDbContext(collection, "../../NotifiesDB.db"));
+            await host.Build().RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -51,6 +55,14 @@ namespace Notify
 
                     services.AddHostedService<NotifyWorker>();
                 }).UseSerilog();
+
+        public static void AddDbContext(IServiceCollection services, string path)
+        {
+            services.AddDbContext<NotifyDbContext>(options =>
+            {
+                options.UseSqlite($@"Data Source={path};");
+            });
+        }
 
         private static void Configure(HostBuilderContext hostContext, IServiceCollection services)
         {
@@ -85,10 +97,9 @@ namespace Notify
             services.AddScoped<NotifyModifier>();
             services.AddScoped<NotifyService>();
 
-            services.AddDbContext<NotifyDbContext>(options =>
-            {
-                options.UseSqlite("Data Source=../../NotifiesDB.db;");
-            });
+
         }
+
+
     }
 }

@@ -20,6 +20,7 @@ namespace Common.Models
 
         public string GetNextStepMessage() => NextStep switch
         {
+            NotifyStep.Name => "Введите название",
             NotifyStep.Date => "Введите дату и время в формате 01.01.2021 00:00",
             NotifyStep.Frequency => "Выберите периодичность",
             NotifyStep.Ready => "Готово",
