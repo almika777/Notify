@@ -42,6 +42,8 @@ namespace Services.Commands.OnCallbackQuery
             model.Frequency = frequency;
             model.FrequencyTime = GetFrequencyTime(frequency);
 
+            await _bot.DeleteMessageAsync(chatId, e.CallbackQuery.Message.MessageId);
+
             if (frequency == FrequencyType.Custom)
             {
                 await _bot.SendTextMessageAsync(chatId, $@"Укажите как часто нужно воспроизводить в формате{Environment.NewLine}01.01.0001 00:00");
@@ -69,6 +71,7 @@ namespace Services.Commands.OnCallbackQuery
             models.TryGetValue(value.NotifyId, out var editedModel);
             model = editedModel!;
             model.NextStep = NotifyStep.Frequency;
+
             return model;
         }
 

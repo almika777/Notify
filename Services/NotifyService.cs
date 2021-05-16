@@ -59,7 +59,7 @@ namespace Services
 
             try
             {
-                if (await CheckEditCache(e, chatId)) return;
+                if (await TryEditNotify(e, chatId)) return;
 
                 await CreateOrUpdateNotify(e);
             }
@@ -108,43 +108,19 @@ namespace Services
             }
         }
 
-        private async Task<bool> CheckEditCache(MessageEventArgs e, long chatId)
+        private async Task<bool> TryEditNotify(MessageEventArgs e, long chatId)
         {
             if (!_cache.EditCache.TryGetValue(chatId, out var value)) return false;
+            _cache.ByUser.TryGetValue(chatId, out var models);
 
-            if (!await EditNotify(e, chatId, value.FieldType)) return true;
-
-            if (_cache.EditCache.TryRemove(chatId, out _))
-            {
-                await _bot.SendTextMessageAsync(chatId, "Все гуд");
-            }
-
-            return true;
-        }
-
-        private async Task<bool> EditNotify(MessageEventArgs e, long chatId, EditField field)
-        {
             try
             {
-                _cache.ByUser.TryGetValue(chatId, out var models);
                 models!.TryGetValue(_cache.EditCache[chatId].NotifyId, out var editedModel);
+                _notifyModifier.EditNotify(e, editedModel!, value.FieldType);
 
-                switch (field)
+                if (_cache.EditCache.TryRemove(chatId, out _))
                 {
-                    case EditField.Name: editedModel!.Name = e.Message.Text.Trim(); break;
-                    case EditField.Date:
-                        {
-                            DateTimeOffset.TryParse(e.Message.Text.Trim(), out var date);
-                            editedModel!.Date = date;
-                            break;
-                        }
-                    case EditField.Frequency:
-                        {
-                            _notifyModifier.CreateOrUpdate(editedModel!, e.Message.Text);
-                            break;
-                        }
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(field), field, null);
+                    await _bot.SendTextMessageAsync(chatId, "Все гуд");
                 }
 
                 return await _editor.Edit(chatId, editedModel!);

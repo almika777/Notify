@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Services.Cache;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Services.Commands.OnCallbackQuery
@@ -44,7 +45,7 @@ namespace Services.Commands.OnCallbackQuery
                 }
             });
 
-            await _bot.SendTextMessageAsync(chatId, $"{model.Name}{Environment.NewLine}Дата: {model.Date:g}", replyMarkup: markup);
+            await _bot.SendTextMessageAsync(chatId, $"{model.ToTelegramChat()}", ParseMode.Html, replyMarkup: markup);
             await _bot.DeleteMessageAsync(chatId, e.CallbackQuery.Message.MessageId);
         }
     }

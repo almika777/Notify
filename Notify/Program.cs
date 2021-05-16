@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Notify.Workers;
 using Serilog;
 using Serilog.Events;
@@ -30,6 +31,7 @@ namespace Notify
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Error)
                 .Enrich.FromLogContext()
                 .WriteTo.RollingFile(new CompactJsonFormatter(), @"../../logs/log.json", shared: true)
                 .WriteTo.Console()
@@ -85,7 +87,6 @@ namespace Notify
 
             services.AddDbContext<NotifyDbContext>(options =>
             {
-                options.EnableSensitiveDataLogging();
                 options.UseSqlite("Data Source=../../NotifiesDB.db;");
             });
         }

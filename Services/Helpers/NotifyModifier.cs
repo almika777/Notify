@@ -1,13 +1,34 @@
 ﻿using Common;
-using System;
-using System.Globalization;
 using Common.Enum;
 using Common.Models;
+using System;
+using System.Globalization;
+using Telegram.Bot.Args;
 
 namespace Services.Helpers
 {
     public class NotifyModifier
     {
+        public void EditNotify(MessageEventArgs e, NotifyModel model, EditField field)
+        {
+            switch (field)
+            {
+                case EditField.Name: model!.Name = e.Message.Text.Trim(); break;
+                case EditField.Date:
+                    {
+                        DateTimeOffset.TryParse(e.Message.Text.Trim(), out var date);
+                        model!.Date = date;
+                        break;
+                    }
+                case EditField.Frequency:
+                    {
+                        CreateOrUpdate(model!, e.Message.Text);
+                        break;
+                    }
+                default: throw new ArgumentOutOfRangeException(nameof(field), field, null);
+            }
+        }
+
         public NotifyModel CreateOrUpdate(NotifyModel model, string data)
         {
             switch (model.NextStep)
