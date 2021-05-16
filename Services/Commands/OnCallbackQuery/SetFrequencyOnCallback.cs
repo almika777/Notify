@@ -1,11 +1,11 @@
 ﻿using Common.CallbackModels;
 using Common.Enum;
+using Common.Models;
+using Services.Cache;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using Services.Cache;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 // ReSharper disable PossibleNullReferenceException
@@ -30,7 +30,7 @@ namespace Services.Commands.OnCallbackQuery
         public async Task Execute(object? sender, CallbackQueryEventArgs e)
         {
             var chatId = e.CallbackQuery.Message.Chat.Id;
-            if (!_cache.InProgressNotifications.TryGetValue(chatId, out var model)) return;
+            var model = GetUpdatedModel(chatId);
 
             if (model!.NextStep != NotifyStep.Frequency)
             {
@@ -51,6 +51,25 @@ namespace Services.Commands.OnCallbackQuery
                 _modifier.CreateOrUpdate(model, $"{(int)model.Frequency}");
                 await _stepHandlers.ReadyStep.Execute(chatId, model);
             }
+        }
+
+        private NotifyModel GetUpdatedModel(long chatId)
+        {
+            NotifyModel model = null!;
+
+            if (_cache.InProgressNotifications.TryGetValue(chatId, out var newModel))
+            {
+                model = newModel!;
+                return model;
+            }
+
+            if (!_cache.EditCache.TryGetValue(chatId, out var value)) return model;
+            if (!_cache.ByUser.TryGetValue(chatId, out var models)) return model;
+
+            models.TryGetValue(value.NotifyId, out var editedModel);
+            model = editedModel!;
+            model.NextStep = NotifyStep.Frequency;
+            return model;
         }
 
         private TimeSpan GetFrequencyTime(FrequencyType type) => type switch

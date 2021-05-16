@@ -13,7 +13,7 @@ namespace NotifyTests
         private INotifyReader _reader;
         private INotifyWriter _writer;
         private Configuration _config;
-        private Common.Models.Notify _model;
+        private Common.Models.NotifyModel _model;
 
         [SetUp]
         public void Setup()

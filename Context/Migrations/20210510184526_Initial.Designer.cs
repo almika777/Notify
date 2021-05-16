@@ -18,7 +18,7 @@ namespace Context.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.5");
 
-            modelBuilder.Entity("Common.Models.ChatUser", b =>
+            modelBuilder.Entity("Common.Models.ChatUserModel", b =>
                 {
                     b.Property<long>("ChatId")
                         .ValueGeneratedOnAdd()
@@ -29,7 +29,7 @@ namespace Context.Migrations
                     b.ToTable("ChatUsers");
                 });
 
-            modelBuilder.Entity("Common.Models.Notify", b =>
+            modelBuilder.Entity("Common.Models.NotifyModel", b =>
                 {
                     b.Property<Guid>("NotifyId")
                         .ValueGeneratedOnAdd()
@@ -61,15 +61,15 @@ namespace Context.Migrations
                     b.ToTable("Notifies");
                 });
 
-            modelBuilder.Entity("Common.Models.Notify", b =>
+            modelBuilder.Entity("Common.Models.NotifyModel", b =>
                 {
-                    b.HasOne("Common.Models.ChatUser", "ChatUser")
+                    b.HasOne("Common.Models.ChatUserModel", "ChatUserModel")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ChatUser");
+                    b.Navigation("ChatUserModel");
                 });
 #pragma warning restore 612, 618
         }

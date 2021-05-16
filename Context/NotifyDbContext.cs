@@ -1,4 +1,4 @@
-﻿using Common.Models;
+﻿using Context.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Context

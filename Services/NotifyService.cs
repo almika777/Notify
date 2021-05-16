@@ -1,13 +1,14 @@
-﻿using Common.Enum;
+﻿using Common;
+using Common.Enum;
 using Microsoft.Extensions.Logging;
+using Services.Cache;
 using Services.Commands.OnCallbackQuery;
 using Services.Commands.OnMessage;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
+using Services.IoServices;
 using System;
 using System.Threading.Tasks;
-using Services.Cache;
-using Services.IoServices;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -20,7 +21,7 @@ namespace Services
         private readonly NotifyCacheService _cache;
         private readonly NotifyStepHandlers _stepHandlers;
         private readonly OnMessageCommandRepository _messageCommandRepository;
-        private readonly OnCallbackCommandRepository _callbackCommandRepository;
+        private readonly OnCallbackRepository _callbackRepository;
         private readonly NotifyModifier _notifyModifier;
         private readonly ILogger<NotifyService> _logger;
 
@@ -30,7 +31,7 @@ namespace Services
             NotifyCacheService cache,
             NotifyStepHandlers stepHandlers,
             OnMessageCommandRepository messageCommandRepository,
-            OnCallbackCommandRepository callbackCommandRepository,
+            OnCallbackRepository callbackRepository,
             NotifyModifier notifyModifier,
             ILogger<NotifyService> logger)
         {
@@ -39,14 +40,14 @@ namespace Services
             _cache = cache;
             _stepHandlers = stepHandlers;
             _messageCommandRepository = messageCommandRepository;
-            _callbackCommandRepository = callbackCommandRepository;
+            _callbackRepository = callbackRepository;
             _notifyModifier = notifyModifier;
             _logger = logger;
         }
 
         public void OnCallbackQuery(object? sender, CallbackQueryEventArgs e)
         {
-            _callbackCommandRepository.Execute(sender, e).ConfigureAwait(false).GetAwaiter().GetResult();
+            _callbackRepository.Execute(sender, e).ConfigureAwait(false).GetAwaiter().GetResult();
             _bot.AnswerCallbackQueryAsync(e.CallbackQuery.Id);
         }
 
@@ -54,11 +55,7 @@ namespace Services
         {
             var chatId = e.Message.Chat.Id;
 
-            if (_messageCommandRepository.IsCommand(e.Message.Text))
-            {
-                await _messageCommandRepository.Execute(e.Message.Text, chatId);
-                return;
-            }
+            if (await CommandsProcessing(e: e, chatId: chatId)) return;
 
             try
             {
@@ -77,12 +74,28 @@ namespace Services
             }
         }
 
+        private async Task<bool> CommandsProcessing(MessageEventArgs e, long chatId)
+        {
+            if (_messageCommandRepository.IsCommand(e.Message.Text))
+            {
+                await _messageCommandRepository.Execute(e.Message.Text, chatId);
+                return true;
+            }
+
+            if (!_messageCommandRepository.IsAdminCommand(e.Message.Text) || CommonResource.AdminId != 285783010)
+                return false;
+
+            await _messageCommandRepository.AdminExecute(e.Message.Text, chatId);
+
+            return true;
+        }
+
         private async Task CreateOrUpdateNotify(MessageEventArgs e)
         {
             var chatId = e.Message.Chat.Id;
             _cache.InProgressNotifications.TryGetValue(chatId, out var model);
 
-            var notifyModel = _notifyModifier.CreateOrUpdate(model, chatId, e.Message.Text);
+            var notifyModel = _notifyModifier.CreateOrUpdate(model!, e.Message.Text);
 
             switch (notifyModel!.NextStep)
             {
@@ -99,11 +112,14 @@ namespace Services
         {
             if (!_cache.EditCache.TryGetValue(chatId, out var value)) return false;
 
-            if (await EditNotify(e, chatId, value.FieldType))
+            if (!await EditNotify(e, chatId, value.FieldType)) return true;
+
+            if (_cache.EditCache.TryRemove(chatId, out _))
+            {
                 await _bot.SendTextMessageAsync(chatId, "Все гуд");
+            }
 
             return true;
-
         }
 
         private async Task<bool> EditNotify(MessageEventArgs e, long chatId, EditField field)
@@ -115,17 +131,23 @@ namespace Services
 
                 switch (field)
                 {
-                    case EditField.Name: editedModel!.ChangeName(e.Message.Text.Trim()); break;
+                    case EditField.Name: editedModel!.Name = e.Message.Text.Trim(); break;
                     case EditField.Date:
                         {
                             DateTimeOffset.TryParse(e.Message.Text.Trim(), out var date);
-                            editedModel!.ChangeDate(date);
+                            editedModel!.Date = date;
+                            break;
+                        }
+                    case EditField.Frequency:
+                        {
+                            _notifyModifier.CreateOrUpdate(editedModel!, e.Message.Text);
                             break;
                         }
                     default:
                         throw new ArgumentOutOfRangeException(nameof(field), field, null);
                 }
-                return await _editor.Edit(chatId, editedModel);
+
+                return await _editor.Edit(chatId, editedModel!);
             }
             catch (Exception exception)
             {

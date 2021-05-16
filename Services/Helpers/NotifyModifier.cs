@@ -8,20 +8,7 @@ namespace Services.Helpers
 {
     public class NotifyModifier
     {
-        public Notify CreateOrUpdate(Notify? model, long chatId, string data)
-        {
-            var newModel = model ?? new Notify
-            {
-                UserId = chatId,
-                NotifyId = Guid.NewGuid(),
-                Name = data
-            };
-            return Update(newModel, data);
-        }
-
-        public Notify CreateOrUpdate(Notify? model, string data) => Update(model!, data);
-
-        private Notify Update(Notify model, string data)
+        public NotifyModel CreateOrUpdate(NotifyModel model, string data)
         {
             switch (model.NextStep)
             {
@@ -52,7 +39,7 @@ namespace Services.Helpers
             return UpdateState(model);
         }
 
-        private Notify UpdateState(Notify model)
+        private NotifyModel UpdateState(NotifyModel model)
         {
             model.NextStep = model.NextStep switch
             {

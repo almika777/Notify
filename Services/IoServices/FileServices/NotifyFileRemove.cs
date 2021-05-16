@@ -29,7 +29,7 @@ namespace Services.IoServices.FileServices
             _logger = logger;
         }
 
-        public async Task<bool> Remove(Notify model)
+        public async Task<bool> Remove(NotifyModel model)
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return false;
 

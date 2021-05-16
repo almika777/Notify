@@ -6,6 +6,6 @@ namespace Services.IoServices
     // ReSharper disable once InconsistentNaming
     public interface INotifyRemover
     {
-        public Task<bool> Remove(Notify model);
+        public Task<bool> Remove(NotifyModel model);
     }
 }

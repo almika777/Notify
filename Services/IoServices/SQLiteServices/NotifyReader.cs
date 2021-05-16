@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using AutoMapper;
+using Common.Models;
 using Context;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,25 +11,31 @@ namespace Services.IoServices.SQLiteServices
     public class NotifyReader : INotifyReader
     {
         private readonly NotifyDbContext _context;
+        private readonly IMapper _mapper;
 
-        public NotifyReader(NotifyDbContext context)
+        public NotifyReader(NotifyDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public Task<Notify[]> ReadAll(long chatId)
+        public async Task<NotifyModel[]> ReadAll(long chatId)
         {
-            return _context.Notifies
+            var entities = await _context.Notifies
                 .AsNoTracking()
                 .Where(x => x.UserId == chatId)
                 .ToArrayAsync();
+
+            return _mapper.Map<NotifyModel[]>(entities);
         }
 
-        public Task<Notify> Read(long chatId, Guid notifyId)
+        public async Task<NotifyModel> Read(long chatId, Guid notifyId)
         {
-            return _context.Notifies
+            var entity =  await _context.Notifies
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.NotifyId == notifyId && x.UserId == chatId);
+
+            return _mapper.Map<NotifyModel>(entity);
         }
     }
 }

@@ -5,6 +5,6 @@ namespace Services.Helpers.NotifyStepHandlers
 {
     public interface INotifyStep
     {
-        Task Execute(long chatId, Notify notifyModel);
+        Task Execute(long chatId, NotifyModel notifyModelModel);
     }
 }

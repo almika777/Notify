@@ -16,7 +16,7 @@ namespace Services.Helpers.NotifyStepHandlers
             _bot = bot;
         }
 
-        public async Task Execute(long chatId, Notify notifyModel)
+        public async Task Execute(long chatId, NotifyModel notifyModelModel)
         {
             var markup = new InlineKeyboardMarkup(new[]
             {
@@ -62,7 +62,7 @@ namespace Services.Helpers.NotifyStepHandlers
                 }
             });
 
-            await _bot.SendTextMessageAsync(chatId, notifyModel.GetNextStepMessage(), replyMarkup: markup);
+            await _bot.SendTextMessageAsync(chatId, notifyModelModel.GetNextStepMessage(), replyMarkup: markup);
         }
     }
 }

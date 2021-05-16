@@ -8,7 +8,7 @@ namespace NotifyTests
     public class NotifyModelTests : TestBase
     {
         private Configuration _config;
-        private Common.Models.Notify _model;
+        private Common.Models.NotifyModel _model;
 
         [SetUp]
         public void Setup()
@@ -29,7 +29,7 @@ namespace NotifyTests
         public void FromStringTest()
         {
             var stringModel = _model.ToString();
-            var model = Common.Models.Notify.FromString(stringModel);
+            var model = Common.Models.NotifyModel.FromString(stringModel);
 
             var properties = stringModel.Split(CommonResource.Separator);
 

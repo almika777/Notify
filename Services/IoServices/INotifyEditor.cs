@@ -5,6 +5,6 @@ namespace Services.IoServices
 {
     public interface INotifyEditor
     {
-        Task<bool> Edit(long chatId, Notify model);
+        Task<bool> Edit(long chatId, NotifyModel model);
     }
 }

@@ -15,7 +15,7 @@ using Telegram.Bot.Args;
 
 namespace Services.Commands.OnCallbackQuery
 {
-    public class OnCallbackCommandRepository
+    public class OnCallbackRepository
     {
         public IDictionary<string, ICallbackCommand> OnCallbackCommands { get; } = new Dictionary<string, ICallbackCommand>();
         private readonly OnMessageCommandRepository _messageCommandRepository;
@@ -24,16 +24,16 @@ namespace Services.Commands.OnCallbackQuery
         private readonly INotifyRemover _fileRemover;
         private readonly NotifyModifier _modifier;
         private readonly NotifyStepHandlers _stepHandlers;
-        private readonly ILogger<OnCallbackCommandRepository> _logger;
+        private readonly ILogger<OnCallbackRepository> _logger;
 
-        public OnCallbackCommandRepository(
+        public OnCallbackRepository(
             OnMessageCommandRepository messageCommandRepository,
             NotifyCacheService cache,
             TelegramBotClient bot,
             INotifyRemover fileRemover,
             NotifyModifier modifier,
             NotifyStepHandlers stepHandlers,
-            ILogger<OnCallbackCommandRepository> logger)
+            ILogger<OnCallbackRepository> logger)
         {
             _messageCommandRepository = messageCommandRepository;
             _cache = cache;
@@ -50,8 +50,7 @@ namespace Services.Commands.OnCallbackQuery
             try
             {
                 var callbackDataParams = CallbackDataModel.FromCallbackData(e.CallbackQuery.Data);
-                var command = callbackDataParams.Command.ToLower().Trim().Split(CommonResource.Separator);
-                return OnCallbackCommands[command[0]].Execute(sender, e);
+                return OnCallbackCommands[callbackDataParams.Command].Execute(sender, e);
             }
             catch (Exception exception)
             {
@@ -71,10 +70,11 @@ namespace Services.Commands.OnCallbackQuery
 
         private void InitEditors()
         {
-            var editor = new EditNotifyOnCallback(_cache, _bot);
+            var editor = new EditNotifyOnCallback(_bot, _stepHandlers, _cache);
 
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditNotifyName, editor);
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditNotifyDate, editor);
+            OnCallbackCommands.Add(BotCommands.OnCallback.Edit.NotifyName, editor);
+            OnCallbackCommands.Add(BotCommands.OnCallback.Edit.NotifyDate, editor);
+            OnCallbackCommands.Add(BotCommands.OnCallback.Edit.NotifyFrequency, editor);
         }
     }
 }

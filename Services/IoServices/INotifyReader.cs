@@ -8,7 +8,7 @@ namespace Services.IoServices
     // ReSharper disable once InconsistentNaming
     public interface INotifyReader
     {
-        public Task<Notify[]> ReadAll(long chatId);
-        public Task<Notify> Read(long chatId, Guid notifyId);
+        public Task<NotifyModel[]> ReadAll(long chatId);
+        public Task<NotifyModel> Read(long chatId, Guid notifyId);
     }
 }

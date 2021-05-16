@@ -29,12 +29,14 @@ namespace Notify.Workers
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var scope = _serviceProvider.CreateScope();
-            var cache = scope.ServiceProvider.GetService<NotifyCacheService>()!;
+
             var bot = scope.ServiceProvider.GetService<TelegramBotClient>()!;
             var remover = scope.ServiceProvider.GetService<INotifyRemover>()!;
+            var cache = scope.ServiceProvider.GetRequiredService<NotifyCacheService>();
 
             await cache.Initialize();
-            StartBot(scope, bot);
+            StartBot(scope);
+
             try
             {
                 while (!stoppingToken.IsCancellationRequested)
@@ -63,6 +65,7 @@ namespace Notify.Workers
                         await Task.WhenAll(tasks);
                     }
 
+
                     await Task.Delay(TimeSpan.FromSeconds(30));
                 }
             }
@@ -72,9 +75,10 @@ namespace Notify.Workers
             }
         }
 
-        private void StartBot(IServiceScope scope, ITelegramBotClient bot)
+        private void StartBot(IServiceScope serviceScope)
         {
-            var notifyService = scope.ServiceProvider.GetService<NotifyService>();
+            var bot = serviceScope.ServiceProvider.GetService<TelegramBotClient>();
+            var notifyService = serviceScope.ServiceProvider.GetService<NotifyService>();
 
             bot!.OnMessage += notifyService!.OnMessage;
             bot.OnCallbackQuery += notifyService!.OnCallbackQuery;

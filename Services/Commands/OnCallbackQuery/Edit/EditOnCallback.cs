@@ -1,9 +1,7 @@
 ﻿using Common;
 using Common.CallbackModels;
-using Services.Commands.OnMessage;
-using System.Threading.Tasks;
 using Services.Cache;
-using Services.IoServices;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -35,17 +33,17 @@ namespace Services.Commands.OnCallbackQuery.Edit
                 new InlineKeyboardButton
                 {
                     Text = "Название",
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNotifyName, model!.NotifyId),
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.Edit.NotifyName, model!.NotifyId),
                 },
                 new InlineKeyboardButton
                 {
                     Text = "Дату",
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNotifyDate, model!.NotifyId),
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.Edit.NotifyDate, model!.NotifyId),
                 },
                 new InlineKeyboardButton
                 {
                     Text = "Частоту",
-                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.EditNotifyFrequency, model!.NotifyId),
+                    CallbackData = CallbackDataModel.ToCallbackData(BotCommands.OnCallback.Edit.NotifyFrequency, model!.NotifyId),
                 }
             });
 

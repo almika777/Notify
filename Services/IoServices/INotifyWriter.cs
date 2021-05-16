@@ -7,7 +7,7 @@ namespace Services.IoServices
     // ReSharper disable once InconsistentNaming
     public interface INotifyWriter
     {
-        public Task Write(Notify model);
-        public Task Write(IEnumerable<Notify> models);
+        public Task Write(NotifyModel model);
+        public Task Write(IEnumerable<NotifyModel> models);
     }
 }

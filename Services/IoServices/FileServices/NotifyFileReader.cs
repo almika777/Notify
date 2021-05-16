@@ -20,22 +20,22 @@ namespace Services.IoServices.FileServices
             _config = config.Value;
         }
 
-        public async Task<Notify[]> ReadAll(long chatId)
+        public async Task<NotifyModel[]> ReadAll(long chatId)
         {
-            var models = new List<Notify>();
+            var models = new List<NotifyModel>();
 
             using var sr = GetStreamReader(chatId);
 
             string? currentLine;
             while ((currentLine = await sr.ReadLineAsync()) != null)
             {
-                models.Add(Notify.FromString(currentLine));
+                models.Add(NotifyModel.FromString(currentLine));
             }
 
             return models.ToArray();
         }
 
-        public async Task<Notify> Read(long chatId, Guid notifyId)
+        public async Task<NotifyModel> Read(long chatId, Guid notifyId)
         {
             try
             {
@@ -44,17 +44,17 @@ namespace Services.IoServices.FileServices
                 string? ln;
                 while ((ln = await sr.ReadLineAsync()) != null)
                 {
-                    var model = Notify.FromString(ln);
+                    var model = NotifyModel.FromString(ln);
                     if (model.NotifyId == notifyId) return model;
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Ой ей ей");
-                return new Notify();
+                return new NotifyModel();
             }
 
-            return new Notify();
+            return new NotifyModel();
         }
 
         private StreamReader GetStreamReader(long chatId)

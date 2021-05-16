@@ -23,7 +23,7 @@ namespace Services.IoServices.FileServices
             _config = config.Value;
         }
 
-        public async Task Write(Notify model)
+        public async Task Write(NotifyModel model)
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return;
 
@@ -42,7 +42,7 @@ namespace Services.IoServices.FileServices
             }
         }
 
-        public async Task Write(IEnumerable<Notify> models)
+        public async Task Write(IEnumerable<NotifyModel> models)
         {
             var notifyModels = models.ToArray();
 

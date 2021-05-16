@@ -28,7 +28,7 @@ namespace Services.IoServices.FileServices
             _config = config.Value;
         }
 
-        public async Task<bool> Edit(long chatId, Notify model)
+        public async Task<bool> Edit(long chatId, NotifyModel model)
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return false;
 

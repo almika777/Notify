@@ -16,10 +16,10 @@ namespace Services.Helpers.NotifyStepHandlers
             _cache = cache;
         }
 
-        public async Task Execute(long chatId, Notify notifyModel)
+        public async Task Execute(long chatId, NotifyModel notifyModelModel)
         {
-            _cache.InProgressNotifications.TryAdd(chatId, notifyModel);
-            await _bot.SendTextMessageAsync(chatId, notifyModel.GetNextStepMessage());
+            _cache.InProgressNotifications.TryAdd(chatId, notifyModelModel);
+            await _bot.SendTextMessageAsync(chatId, notifyModelModel.GetNextStepMessage());
         }
     }
 }

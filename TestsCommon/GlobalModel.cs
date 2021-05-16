@@ -5,9 +5,9 @@ namespace CommonTests
 {
     public class GlobalModel
     {
-        public static Common.Models.Notify GetModel()
+        public static Common.Models.NotifyModel GetModel()
         {
-            return new Common.Models.Notify
+            return new Common.Models.NotifyModel
             {
                 UserId = 1,
                 Date = new DateTimeOffset(new DateTime(2021, 01, 01)),
@@ -17,9 +17,9 @@ namespace CommonTests
             };
         }
 
-        public static Common.Models.Notify GetModel(NotifyStep step)
+        public static Common.Models.NotifyModel GetModel(NotifyStep step)
         {
-            return new Common.Models.Notify
+            return new Common.Models.NotifyModel
             {
                 UserId = 1,
                 Date = new DateTimeOffset(new DateTime(2021, 01, 01)),

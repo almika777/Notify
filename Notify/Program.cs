@@ -1,3 +1,4 @@
+using AutoMapper;
 using Common;
 using Context;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,6 @@ using Services.Commands.OnMessage;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
 using Services.IoServices;
-using Services.IoServices.FileServices;
 using Services.IoServices.SQLiteServices;
 using Telegram.Bot;
 
@@ -59,7 +59,12 @@ namespace Notify
         private static void AddSingletonServices(IServiceCollection services)
         {
             var config = _configurationSection.Get<Configuration>();
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new Services.Mapper());
+            });
 
+            services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton(x => new TelegramBotClient(config.TelegramToken));
             services.AddSingleton<NotifyCacheService>();
         }
@@ -69,16 +74,20 @@ namespace Notify
             services.AddScoped<INotifyWriter, NotifyWriter>();
             services.AddScoped<INotifyReader, NotifyReader>();
             services.AddScoped<INotifyRemover, NotifyRemover>();
-            services.AddScoped<INotifyEditor, NotifyFileEditor>();
+            services.AddScoped<INotifyEditor, NotifyEditor>();
 
             services.AddScoped<NotifyStepHandlers>();
             services.AddScoped<OnMessageCommandRepository>();
-            services.AddScoped<OnCallbackCommandRepository>();
+            services.AddScoped<OnCallbackRepository>();
 
             services.AddScoped<NotifyModifier>();
             services.AddScoped<NotifyService>();
 
-            services.AddDbContext<NotifyDbContext>(options => options.UseSqlite("Data Source=../../NotifiesDB.db;"));
+            services.AddDbContext<NotifyDbContext>(options =>
+            {
+                options.EnableSensitiveDataLogging();
+                options.UseSqlite("Data Source=../../NotifiesDB.db;");
+            });
         }
     }
 }

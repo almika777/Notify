@@ -1,30 +1,21 @@
 ﻿using Common.Enum;
-using Common.Extensions;
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 #pragma warning disable 659
 
 namespace Common.Models
 {
-    public class Notify
+    public class NotifyModel
     {
-        [Key]
         public Guid NotifyId { get; set; }
-
-        [ForeignKey("UserId")]
-        public virtual ChatUser ChatUser { get; set; } = null!;
+        public ChatUserModel ChatUserModel { get; set; } = null!;
         public long UserId { get; set; }
         public DateTimeOffset Date { get; set; }
         public NotifyStep NextStep { get; set; }
         public FrequencyType Frequency { get; set; }
         public string Name { get; set; } = null!;
         public TimeSpan FrequencyTime { get; set; }
-
-        public void ChangeName(string newName) => Name = newName;
-        public void ChangeDate(DateTimeOffset date) => Date = date;
 
         public string GetNextStepMessage() => NextStep switch
         {
@@ -34,11 +25,11 @@ namespace Common.Models
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        public static Notify FromString(string modelString)
+        public static NotifyModel FromString(string modelString)
         {
             var properties = modelString.Split(CommonResource.Separator);
 
-            return new Notify
+            return new NotifyModel
             {
                 UserId = long.TryParse(properties[0], out var chatId)
                     ? chatId
@@ -73,9 +64,10 @@ namespace Common.Models
             sb.AppendLine($@"<b>Следующий раз</b>: {(Date + FrequencyTime):g}");
             return sb.ToString();
         }
+
         public override bool Equals(object obj)
         {
-            var model = obj as Notify;
+            var model = obj as NotifyModel;
 
             if (model == null) return false;
 
