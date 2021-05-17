@@ -1,4 +1,3 @@
-using System.IO;
 using AutoMapper;
 using Common;
 using Context;
@@ -20,7 +19,6 @@ using Services.IoServices;
 using Services.IoServices.SQLiteServices;
 using System.Threading.Tasks;
 using Telegram.Bot;
-using Mapper = AutoMapper.Mapper;
 
 namespace Notify
 {
@@ -39,9 +37,7 @@ namespace Notify
                 .WriteTo.Console()
                 .CreateLogger();
 
-            var host = CreateHostBuilder(args);
-            host.ConfigureServices(collection => AddDbContext(collection, "../../NotifiesDB.db"));
-            await host.Build().RunAsync();
+             await CreateHostBuilder(args).Build().RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -49,6 +45,7 @@ namespace Notify
                 .UseSerilog()
                 .ConfigureServices((hostContext, services) =>
                 {
+                    AddDbContext(services, "../../NotifiesDB.db");
                     Configure(hostContext, services);
                     AddSingletonServices(services);
                     AddScopedServices(services);

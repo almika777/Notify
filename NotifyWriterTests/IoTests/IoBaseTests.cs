@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace NotifyTests.IoTests
 {
-    public class IoBaseTests
+    public class IoBaseTests : BaseTest
     {
         public IoBaseTests()
         {
