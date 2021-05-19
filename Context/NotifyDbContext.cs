@@ -14,9 +14,15 @@ namespace Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Notify>()
+                .HasOne(x => x.ChatUser);
+
+            modelBuilder.Entity<Notify>()
                 .ToTable("Notifies")
                 .HasIndex(x => x.Date);
-            modelBuilder.Entity<ChatUser>().ToTable("ChatUsers");
+
+            modelBuilder.Entity<ChatUser>()
+                .ToTable("ChatUsers")
+                .HasMany<Notify>();
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Common.Models;
+using System;
 using System.Threading.Tasks;
-using Common.Models;
 
 namespace Services.IoServices
 {

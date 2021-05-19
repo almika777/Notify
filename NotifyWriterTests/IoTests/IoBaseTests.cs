@@ -1,10 +1,10 @@
 ﻿using Context;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Notify;
+using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
-using NUnit.Framework;
 
 namespace NotifyTests.IoTests
 {
@@ -19,11 +19,13 @@ namespace NotifyTests.IoTests
 
         protected IServiceProvider SetProvider()
         {
-            var host = Program.CreateHostBuilder(null);
-            host.ConfigureServices(collection => Program.AddDbContext(collection, "../../../../../NotifiesTestsDB.db"));
+            var host = Program.CreateHostBuilder("Data Source=../../../../../NotifiesDbTests.db");
             Services = host.Build().Services;
+            var context = Services.GetRequiredService<NotifyDbContext>();
 
-            Services.GetService<NotifyDbContext>().Database.EnsureCreated();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
             return Services;
         }
 

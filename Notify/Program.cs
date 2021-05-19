@@ -37,27 +37,28 @@ namespace Notify
                 .WriteTo.Console()
                 .CreateLogger();
 
-             await CreateHostBuilder(args).Build().RunAsync();
+            await CreateHostBuilder("Data Source=../../NotifiesDB.db", args).Build().RunAsync();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string dbPath, params string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()
                 .ConfigureServices((hostContext, services) =>
                 {
-                    AddDbContext(services, "../../NotifiesDB.db");
                     Configure(hostContext, services);
+
+                    AddDbContext(services, dbPath);
                     AddSingletonServices(services);
                     AddScopedServices(services);
 
                     services.AddHostedService<NotifyWorker>();
-                }).UseSerilog();
+                })
+                .UseSerilog();
 
         public static void AddDbContext(IServiceCollection services, string path)
         {
             services.AddDbContext<NotifyDbContext>(options =>
             {
-                options.UseSqlite($@"Data Source={path};");
+                options.UseSqlite(path);
             });
         }
 
@@ -93,10 +94,6 @@ namespace Notify
 
             services.AddScoped<NotifyModifier>();
             services.AddScoped<NotifyService>();
-
-
         }
-
-
     }
 }
