@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Services.IoServices;
 using System;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NotifyTests.IoTests
@@ -26,18 +28,9 @@ namespace NotifyTests.IoTests
         }
 
         [Test]
-        public async Task WriteNotifyTest()
+        public async Task WriteOneNotifyTest()
         {
-            var model = new NotifyModel
-            {
-                Date = DateTimeOffset.Now,
-                Name = "test",
-                UserId = 1,
-                Frequency = FrequencyType.Minute,
-                ChatUserModel = new ChatUserModel { ChatId = 1 },
-                FrequencyTime = TimeSpan.FromMinutes(1),
-                NotifyId = Guid.NewGuid()
-            };
+            var model = GetDefaultModel();
 
             await _writer.Write(model);
 
@@ -46,6 +39,24 @@ namespace NotifyTests.IoTests
             Assert.IsNotEmpty(notifies);
             Assert.AreEqual(notifies.Length, 1);
             Assert.AreEqual(model, _mapper.Map<NotifyModel>(notifies[0]));
+        }
+
+        [Test]
+        public async Task WriteManyNotifiesTest()
+        {
+            var models = GetDefaultManyModels().ToImmutableArray();
+
+            await _writer.Write(models);
+
+            var notifies = await _context.Notifies.ToArrayAsync();
+
+            Assert.IsNotEmpty(notifies);
+            Assert.AreEqual(notifies.Length, models.Length);
+
+            for (int i = 0; i < models.Length; i++)
+            {
+                Assert.AreEqual(models[i], _mapper.Map<NotifyModel>(notifies[i]));
+            }
         }
     }
 }

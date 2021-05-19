@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace NotifyTests.IoTests
 {
+    [TestFixture]
     public class NotifyReadTests : IoBaseTests
     {
         private NotifyDbContext _context;
@@ -73,6 +74,7 @@ namespace NotifyTests.IoTests
         [Test]
         public async Task ReadAllNotifyWithManyUserTest()
         {
+
             var models = GetDefaultManyModels().ToArray();
             var models2 = GetDefaultManyModels(2).ToArray();
 
@@ -83,11 +85,11 @@ namespace NotifyTests.IoTests
             await _context.AddRangeAsync(entries2);
             await _context.SaveChangesAsync();
 
-            var entities = await _reader.ReadAll(entries.First().UserId);
+            var entities1 = await _reader.ReadAll(entries[0].UserId);
+            var entities2 = await _reader.ReadAll(entries2[0].UserId);
 
-            Assert.AreEqual(entities.Length, models.Length);
-            Assert.AreEqual(entities.First(), models.First());
-            Assert.AreEqual(entities.Last(), models.Last());
+            Assert.AreEqual(entities1.Length, models.Length);
+            Assert.AreEqual(entities2.Length, models2.Length);
         }
     }
 }
