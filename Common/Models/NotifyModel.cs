@@ -1,6 +1,5 @@
 ﻿using Common.Enum;
 using System;
-using System.Globalization;
 using System.Text;
 
 #pragma warning disable 659
@@ -11,7 +10,7 @@ namespace Common.Models
     {
         public Guid NotifyId { get; set; }
         public ChatUserModel ChatUserModel { get; set; } = null!;
-        public long UserId { get; set; }
+        public long ChatId { get; set; }
         public DateTimeOffset Date { get; set; }
         public NotifyStep NextStep { get; set; }
         public FrequencyType Frequency { get; set; }
@@ -33,9 +32,9 @@ namespace Common.Models
 
             return new NotifyModel
             {
-                UserId = long.TryParse(properties[0], out var chatId)
+                ChatId = long.TryParse(properties[0], out var chatId)
                     ? chatId
-                    : throw new FormatException($"Мы как-то записали неверный формат {nameof(UserId)}"),
+                    : throw new FormatException($"Мы как-то записали неверный формат {nameof(ChatId)}"),
                 NotifyId = Guid.TryParse(properties[1], out var notifyId)
                     ? notifyId
                     : throw new FormatException($"Мы как-то записали неверный формат {nameof(NotifyId)}"),
@@ -53,7 +52,7 @@ namespace Common.Models
         /// Return NotifyModel as string representation with the order of properties (ChatId, NotifyId, Name, Date, Frequency)
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => string.Join(CommonResource.Separator, UserId, NotifyId, Name, Date.ToString("g"), (int)Frequency);
+        public override string ToString() => string.Join(CommonResource.Separator, ChatId, NotifyId, Name, Date.ToString("g"), (int)Frequency);
 
         public string ToTelegramChat()
         {
@@ -67,13 +66,11 @@ namespace Common.Models
             return sb.ToString();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            var model = obj as NotifyModel;
+            if (!(obj is NotifyModel model)) return false;
 
-            if (model == null) return false;
-
-            return UserId == model.UserId && NotifyId == model.NotifyId;
+            return ChatId == model.ChatId && NotifyId == model.NotifyId;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Services.Helpers.NotifyStepHandlers
         {
             try
             {
-                _cache.TryAddToMemory(notifyModelModel);
+                _cache.TryAddToByUser(notifyModelModel);
 
                 if (_cache.EditCache.TryGetValue(chatId, out var value))
                 {

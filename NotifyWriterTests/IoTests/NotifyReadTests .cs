@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CommonTests;
 using Context;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace NotifyTests.IoTests
 {
     [TestFixture]
-    public class NotifyReadTests : IoBaseTests
+    public class NotifyReadTests : ContainerServices
     {
         private NotifyDbContext _context;
         private INotifyReader _reader;
@@ -32,7 +33,7 @@ namespace NotifyTests.IoTests
             await _context.Notifies.AddAsync(entry);
             await _context.SaveChangesAsync();
 
-            var entity = await _reader.Read(entry.UserId, entry.NotifyId);
+            var entity = await _reader.Read(entry.ChatId, entry.NotifyId);
 
             Assert.AreEqual(entity, model);
         }
@@ -50,7 +51,7 @@ namespace NotifyTests.IoTests
             await _context.Notifies.AddAsync(entry2);
             await _context.SaveChangesAsync();
 
-            var entity = await _reader.Read(entry.UserId, entry.NotifyId);
+            var entity = await _reader.Read(entry.ChatId, entry.NotifyId);
 
             Assert.AreEqual(entity, model);
         }
@@ -64,7 +65,7 @@ namespace NotifyTests.IoTests
             await _context.AddRangeAsync(entries);
             await _context.SaveChangesAsync();
 
-            var entities = await _reader.ReadAll(entries.First().UserId);
+            var entities = await _reader.ReadAll(entries.First().ChatId);
 
             Assert.AreEqual(entities.Length, models.Length);
             Assert.AreEqual(entities.First(), models.First());
@@ -85,8 +86,8 @@ namespace NotifyTests.IoTests
             await _context.AddRangeAsync(entries2);
             await _context.SaveChangesAsync();
 
-            var entities1 = await _reader.ReadAll(entries[0].UserId);
-            var entities2 = await _reader.ReadAll(entries2[0].UserId);
+            var entities1 = await _reader.ReadAll(entries[0].ChatId);
+            var entities2 = await _reader.ReadAll(entries2[0].ChatId);
 
             Assert.AreEqual(entities1.Length, models.Length);
             Assert.AreEqual(entities2.Length, models2.Length);

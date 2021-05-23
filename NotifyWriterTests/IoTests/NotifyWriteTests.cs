@@ -1,19 +1,17 @@
 ﻿using AutoMapper;
-using Common.Enum;
 using Common.Models;
+using CommonTests;
 using Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Services.IoServices;
-using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NotifyTests.IoTests
 {
-    public class NotifyWriteTests : IoBaseTests
+    public class NotifyWriteTests : ContainerServices
     {
         private NotifyDbContext _context;
         private INotifyWriter _writer;

@@ -1,12 +1,17 @@
-﻿using Common.Enum;
-using Common.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Common.Enum;
+using Common.Models;
 
-namespace NotifyTests.IoTests
+namespace CommonTests
 {
     public class BaseTest
     {
+        /// <summary>
+        /// Return from 3 to 10 NotifyModel
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         protected IEnumerable<NotifyModel> GetDefaultManyModels(long userId = 1)
         {
             var rand = new Random().Next(3, 10);

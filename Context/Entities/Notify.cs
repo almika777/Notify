@@ -10,9 +10,9 @@ namespace Context.Entities
         [Key]
         public Guid NotifyId { get; set; }
 
-        [ForeignKey("UserId")]
+        [ForeignKey("ChatId")]
         public virtual ChatUser ChatUser { get; set; } = null!;
-        public long UserId { get; set; }
+        public long ChatId { get; set; }
         public DateTimeOffset Date { get; set; }
         public FrequencyType Frequency { get; set; }
         public string Name { get; set; } = null!;

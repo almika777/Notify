@@ -30,12 +30,14 @@ namespace Services.Cache
         private readonly IServiceProvider _provider;
         private readonly IMapper _mapper;
         private readonly ILogger<NotifyCacheService> _logger;
+        private readonly UserCacheService _userCache;
 
         public NotifyCacheService(IServiceProvider provider, IMapper mapper, ILogger<NotifyCacheService> logger)
         {
             _provider = provider;
             _mapper = mapper;
             _logger = logger;
+            _userCache = provider.GetRequiredService<UserCacheService>();
         }
 
         public async Task Initialize()
@@ -50,12 +52,14 @@ namespace Services.Cache
                     await using (context)
                     {
                         var models = await context!.Notifies.AsNoTracking().ToArrayAsync();
-                        var modelsByUser = models.GroupBy(x => x.UserId).ToDictionary(x => x.Key);
+                        var users = await context!.ChatUsers.AsNoTracking().ToArrayAsync();
+                        var modelsByUser = models.GroupBy(x => x.ChatId).ToDictionary(x => x.Key);
 
-                        foreach (var (key, value) in modelsByUser)
-                        {
-                            ByUser.TryAdd(key, value.ToDictionary(x => x.NotifyId, x => _mapper.Map<NotifyModel>(x)));
-                        }
+                        modelsByUser.AsParallel()
+                            .ForAll(pair => ByUser.TryAdd(pair.Key, pair.Value.ToDictionary(x => x.NotifyId, x => _mapper.Map<NotifyModel>(x))));
+
+                        users.AsParallel()
+                            .ForAll(user => _userCache.Users.TryAdd(user.ChatId, new ChatUserModel { ChatId = user.ChatId }));
                     }
                 }
 
@@ -67,21 +71,21 @@ namespace Services.Cache
             }
         }
 
-        public bool TryAddToMemory(NotifyModel model)
+        public bool TryAddToByUser(NotifyModel model)
         {
-            if (!ByUser.ContainsKey(model.UserId))
+            if (!ByUser.ContainsKey(model.ChatId))
             {
-                return ByUser.TryAdd(model.UserId, new Dictionary<Guid, NotifyModel> { { model.NotifyId, model } });
+                return ByUser.TryAdd(model.ChatId, new Dictionary<Guid, NotifyModel> { { model.NotifyId, model } });
             }
 
-            if (EditCache.ContainsKey(model.UserId))
+            if (EditCache.ContainsKey(model.ChatId))
             {
-                ByUser[model.UserId].Remove(model.NotifyId);
-                ByUser[model.UserId].Add(model.NotifyId, model);
+                ByUser[model.ChatId].Remove(model.NotifyId);
+                ByUser[model.ChatId].Add(model.NotifyId, model);
             }
             else
             {
-                ByUser[model.UserId].Add(model.NotifyId, model);
+                ByUser[model.ChatId].Add(model.NotifyId, model);
             }
 
             return true;
@@ -89,7 +93,7 @@ namespace Services.Cache
 
         public bool TryRemoveFromCurrent(NotifyModel model)
         {
-            return InProgressNotifications.TryRemove(new KeyValuePair<long, NotifyModel>(model.UserId, model));
+            return InProgressNotifications.TryRemove(new KeyValuePair<long, NotifyModel>(model.ChatId, model));
         }
     }
 }

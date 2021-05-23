@@ -24,6 +24,7 @@ namespace Services.Commands.OnCallbackQuery
         private readonly INotifyRemover _fileRemover;
         private readonly NotifyModifier _modifier;
         private readonly NotifyStepHandlers _stepHandlers;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger<OnCallbackRepository> _logger;
 
         public OnCallbackRepository(
@@ -33,7 +34,7 @@ namespace Services.Commands.OnCallbackQuery
             INotifyRemover fileRemover,
             NotifyModifier modifier,
             NotifyStepHandlers stepHandlers,
-            ILogger<OnCallbackRepository> logger)
+            ILoggerFactory loggerFactory)
         {
             _messageCommandRepository = messageCommandRepository;
             _cache = cache;
@@ -41,7 +42,8 @@ namespace Services.Commands.OnCallbackQuery
             _fileRemover = fileRemover;
             _modifier = modifier;
             _stepHandlers = stepHandlers;
-            _logger = logger;
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<OnCallbackRepository>();
             Init();
         }
 
@@ -61,10 +63,18 @@ namespace Services.Commands.OnCallbackQuery
 
         private void Init()
         {
-            OnCallbackCommands.Add(BotCommands.OnCallback.Show, new ShowOnCallback(_cache, _bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.Remove, new RemoveOnCallback(_messageCommandRepository, _fileRemover, _cache, _bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.EditEntry, new EditOnCallback(_cache, _bot));
-            OnCallbackCommands.Add(BotCommands.OnCallback.SetFrequency, new SetFrequencyOnCallback(_cache, _bot, _modifier, _stepHandlers));
+            OnCallbackCommands.Add(BotCommands.OnCallback.Show, 
+                new ShowOnCallback(_cache, _bot));
+
+            OnCallbackCommands.Add(BotCommands.OnCallback.Remove, 
+                new RemoveOnCallback(_messageCommandRepository, _fileRemover, _cache, _bot));
+
+            OnCallbackCommands.Add(BotCommands.OnCallback.EditEntry, 
+                new EditOnCallback(_cache, _bot));
+
+            OnCallbackCommands.Add(BotCommands.OnCallback.SetFrequency, 
+                new SetFrequencyOnCallback(_cache, _bot, _modifier, _stepHandlers, _loggerFactory));
+
             InitEditors();
         }
 

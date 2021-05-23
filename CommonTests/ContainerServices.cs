@@ -1,15 +1,16 @@
-﻿using Context;
+﻿using System;
+using System.Threading.Tasks;
+using Context;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notify;
 using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
 
-namespace NotifyTests.IoTests
+namespace CommonTests
 {
-    public class IoBaseTests : BaseTest
+    public class ContainerServices : BaseTest
     {
-        public IoBaseTests()
+        public ContainerServices()
         {
             SetProvider();
         }
@@ -19,10 +20,7 @@ namespace NotifyTests.IoTests
         [SetUp]
         protected void SetProvider()
         {
-            Services = Program
-                .CreateHostBuilder("Data Source=../../../../../NotifiesDbTests.db")
-                .Build()
-                .Services;
+            Services = Program.CreateHostBuilder("appsettings.json").Build().Services;
 
             var context = Services.GetRequiredService<NotifyDbContext>();
 

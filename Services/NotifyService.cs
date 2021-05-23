@@ -48,7 +48,7 @@ namespace Services
         {
             var chatId = e.Message.Chat.Id;
 
-            if (await CommandsProcessing(e: e, chatId: chatId)) return;
+            if (await CommandsProcessing(e, chatId)) return;
 
             try
             {
@@ -88,7 +88,9 @@ namespace Services
             var chatId = e.Message.Chat.Id;
             _cache.InProgressNotifications.TryGetValue(chatId, out var model);
 
-            var notifyModel = _notifyModifier.CreateOrUpdate(model, e.Message.Text);
+            var notifyModel = model == null 
+                ? _notifyModifier.Create(e) 
+                : _notifyModifier.Update(model, e.Message.Text);
 
             switch (notifyModel!.NextStep)
             {

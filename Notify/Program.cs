@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AutoMapper;
 using Common;
 using Context;
@@ -24,29 +25,31 @@ namespace Notify
 {
     public class Program
     {
-        private static IConfigurationSection _configurationSection = null!;
+        private static Configuration _config = null!;
 
         public static async Task Main(string[] args)
         {
+            var host = CreateHostBuilder("appsettings.json", args).Build();
+
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Error)
                 .Enrich.FromLogContext()
-                .WriteTo.RollingFile(new CompactJsonFormatter(), @"../../logs/log.json", shared: true)
+                .WriteTo.RollingFile(new CompactJsonFormatter(), _config.LogPath, shared: true)
                 .WriteTo.Console()
                 .CreateLogger();
 
-            await CreateHostBuilder("Data Source=../../NotifiesDB.db", args).Build().RunAsync();
+            await host.RunAsync();
         }
 
-        public static IHostBuilder CreateHostBuilder(string dbPath, params string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string configPath, params string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(builder => builder.AddJsonFile(configPath))
                 .ConfigureServices((hostContext, services) =>
                 {
                     Configure(hostContext, services);
-
-                    AddDbContext(services, dbPath);
+                    AddDbContext(services);
                     AddSingletonServices(services);
                     AddScopedServices(services);
 
@@ -54,31 +57,29 @@ namespace Notify
                 })
                 .UseSerilog();
 
-        public static void AddDbContext(IServiceCollection services, string path)
+        public static void AddDbContext(IServiceCollection services)
         {
-            services.AddDbContext<NotifyDbContext>(options =>
-            {
-                options.UseSqlite(path);
-            });
+            var connectionString = $@"Data Source ={_config.DbPath};";
+            services.AddDbContext<NotifyDbContext>(options => options.UseSqlite(connectionString));
         }
 
         private static void Configure(HostBuilderContext hostContext, IServiceCollection services)
         {
-            _configurationSection = hostContext.Configuration.GetSection(nameof(Configuration));
-            services.Configure<Configuration>(_configurationSection);
+            services.Configure<Configuration>(hostContext.Configuration.GetSection(nameof(Configuration)));
+            _config = hostContext.Configuration.GetSection(nameof(Configuration)).Get<Configuration>();
         }
 
         private static void AddSingletonServices(IServiceCollection services)
         {
-            var config = _configurationSection.Get<Configuration>();
             var mapperConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile(new Services.Mapper());
             });
 
             services.AddSingleton(mapperConfig.CreateMapper());
-            services.AddSingleton(x => new TelegramBotClient(config.TelegramToken));
+            services.AddSingleton(x => new TelegramBotClient(_config.TelegramToken));
             services.AddSingleton<NotifyCacheService>();
+            services.AddSingleton<UserCacheService>();
         }
 
         private static void AddScopedServices(IServiceCollection services)

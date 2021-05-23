@@ -27,7 +27,7 @@ namespace Services.IoServices.FileServices
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return;
 
-            var path = Path.Combine(_config.CacheFolder!, $@"{model.UserId}.txt");
+            var path = Path.Combine(_config.CacheFolder!, $@"{model.ChatId}.txt");
 
             try
             {
@@ -48,7 +48,7 @@ namespace Services.IoServices.FileServices
 
             if (string.IsNullOrEmpty(_config.CacheFolder) || !notifyModels.Any()) return;
 
-            var chatId = notifyModels.First().UserId;
+            var chatId = notifyModels.First().ChatId;
             var path = Path.Combine(_config.CacheFolder!, $@"{chatId}.txt");
 
             try

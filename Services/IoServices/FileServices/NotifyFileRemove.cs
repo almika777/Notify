@@ -33,13 +33,13 @@ namespace Services.IoServices.FileServices
         {
             if (string.IsNullOrEmpty(_config.CacheFolder)) return false;
 
-            var path = Path.Combine(_config.CacheFolder!, $@"{model.UserId}.txt");
+            var path = Path.Combine(_config.CacheFolder!, $@"{model.ChatId}.txt");
 
             if (!File.Exists(path)) throw new FileNotFoundException("Не нашли файлик");
 
             try
             {
-                var models = (await _reader.ReadAll(model.UserId)).ToImmutableArray();
+                var models = (await _reader.ReadAll(model.ChatId)).ToImmutableArray();
                 File.Delete(path);
 
                 await _writer.Write(models.Where(x => !x.Equals(model)));

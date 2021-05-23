@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Context.Migrations
 {
     [DbContext(typeof(NotifyDbContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    partial class NotifyDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -33,6 +33,9 @@ namespace Context.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("ChatId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTimeOffset>("Date")
                         .HasColumnType("TEXT");
 
@@ -45,14 +48,11 @@ namespace Context.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("NotifyId");
 
-                    b.HasIndex("Date");
+                    b.HasIndex("ChatId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Date");
 
                     b.ToTable("Notifies");
                 });
@@ -61,7 +61,7 @@ namespace Context.Migrations
                 {
                     b.HasOne("Context.Entities.ChatUser", "ChatUser")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

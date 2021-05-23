@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Context.Migrations
 {
     [DbContext(typeof(NotifyDbContext))]
-    [Migration("20210510200428_Index by dat")]
-    partial class Indexbydat
+    [Migration("20210523205305_rename2")]
+    partial class rename2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -18,7 +18,7 @@ namespace Context.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.5");
 
-            modelBuilder.Entity("Common.Models.ChatUserModel", b =>
+            modelBuilder.Entity("Context.Entities.ChatUser", b =>
                 {
                     b.Property<long>("ChatId")
                         .ValueGeneratedOnAdd()
@@ -29,11 +29,14 @@ namespace Context.Migrations
                     b.ToTable("ChatUsers");
                 });
 
-            modelBuilder.Entity("Common.Models.NotifyModel", b =>
+            modelBuilder.Entity("Context.Entities.Notify", b =>
                 {
                     b.Property<Guid>("NotifyId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
+
+                    b.Property<long>("ChatId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset>("Date")
                         .HasColumnType("TEXT");
@@ -45,33 +48,26 @@ namespace Context.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("NextStep")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("NotifyId");
 
-                    b.HasIndex("Date");
+                    b.HasIndex("ChatId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Date");
 
                     b.ToTable("Notifies");
                 });
 
-            modelBuilder.Entity("Common.Models.NotifyModel", b =>
+            modelBuilder.Entity("Context.Entities.Notify", b =>
                 {
-                    b.HasOne("Common.Models.ChatUserModel", "ChatUserModel")
+                    b.HasOne("Context.Entities.ChatUser", "ChatUser")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ChatUserModel");
+                    b.Navigation("ChatUser");
                 });
 #pragma warning restore 612, 618
         }

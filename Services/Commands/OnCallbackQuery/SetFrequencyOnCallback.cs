@@ -1,6 +1,7 @@
 ﻿using Common.CallbackModels;
 using Common.Enum;
 using Common.Models;
+using Microsoft.Extensions.Logging;
 using Services.Cache;
 using Services.Helpers;
 using Services.Helpers.NotifyStepHandlers;
@@ -17,41 +18,55 @@ namespace Services.Commands.OnCallbackQuery
         private readonly TelegramBotClient _bot;
         private readonly NotifyModifier _modifier;
         private readonly NotifyStepHandlers _stepHandlers;
+        private readonly ILogger<SetFrequencyOnCallback> _logger;
         private readonly NotifyCacheService _cache;
 
-        public SetFrequencyOnCallback(NotifyCacheService cache, TelegramBotClient bot, NotifyModifier modifier, NotifyStepHandlers stepHandlers)
+        public SetFrequencyOnCallback(
+            NotifyCacheService cache,
+            TelegramBotClient bot,
+            NotifyModifier modifier,
+            NotifyStepHandlers stepHandlers,
+            ILoggerFactory loggerFactory)
         {
             _bot = bot;
             _modifier = modifier;
             _stepHandlers = stepHandlers;
+            _logger = loggerFactory.CreateLogger<SetFrequencyOnCallback>();
             _cache = cache;
         }
 
         public async Task Execute(object? sender, CallbackQueryEventArgs e)
         {
-            var chatId = e.CallbackQuery.Message.Chat.Id;
-            var model = GetUpdatedModel(chatId);
-
-            if (model!.NextStep != NotifyStep.Frequency)
+            try
             {
-                await _bot.SendTextMessageAsync(chatId, "");
-                return;
+                var chatId = e.CallbackQuery.Message.Chat.Id;
+                var model = GetUpdatedModel(chatId);
+
+                if (model!.NextStep != NotifyStep.Frequency)
+                {
+                    await _bot.SendTextMessageAsync(chatId, "");
+                    return;
+                }
+
+                var frequency = CallbackFrequency.FromCallback(e.CallbackQuery.Data);
+                model.Frequency = frequency;
+                model.FrequencyTime = GetFrequencyTime(frequency);
+
+                await _bot.DeleteMessageAsync(chatId, e.CallbackQuery.Message.MessageId);
+
+                if (frequency == FrequencyType.Custom)
+                {
+                    await _bot.SendTextMessageAsync(chatId, $@"Укажите как часто нужно воспроизводить в формате{Environment.NewLine}01.01.0001 00:00");
+                }
+                else
+                {
+                    _modifier.Update(model, $"{(int)model.Frequency}");
+                    await _stepHandlers.ReadyStep.Execute(chatId, model);
+                }
             }
-
-            var frequency = CallbackFrequency.FromCallback(e.CallbackQuery.Data);
-            model.Frequency = frequency;
-            model.FrequencyTime = GetFrequencyTime(frequency);
-
-            await _bot.DeleteMessageAsync(chatId, e.CallbackQuery.Message.MessageId);
-
-            if (frequency == FrequencyType.Custom)
+            catch (Exception exception)
             {
-                await _bot.SendTextMessageAsync(chatId, $@"Укажите как часто нужно воспроизводить в формате{Environment.NewLine}01.01.0001 00:00");
-            }
-            else
-            {
-                _modifier.CreateOrUpdate(model, $"{(int)model.Frequency}");
-                await _stepHandlers.ReadyStep.Execute(chatId, model);
+                _logger.LogError(exception, "SetFrequencyOnCallback");
             }
         }
 

@@ -3,12 +3,20 @@ using Common.Enum;
 using Common.Models;
 using System;
 using System.Globalization;
+using Services.Cache;
 using Telegram.Bot.Args;
 
 namespace Services.Helpers
 {
     public class NotifyModifier
     {
+        private readonly UserCacheService _userCache;
+
+        public NotifyModifier(UserCacheService userCache)
+        {
+            _userCache = userCache;
+        }
+
         public void EditNotify(MessageEventArgs e, NotifyModel model, EditField field)
         {
             switch (field)
@@ -22,20 +30,21 @@ namespace Services.Helpers
                     }
                 case EditField.Frequency:
                     {
-                        CreateOrUpdate(model!, e.Message.Text);
+                        Update(model!, e.Message.Text);
                         break;
                     }
                 default: throw new ArgumentOutOfRangeException(nameof(field), field, null);
             }
         }
 
-        public NotifyModel CreateOrUpdate(NotifyModel? model, string data)
+        public NotifyModel Update(NotifyModel? model, string data)
         {
             if (model == null) return new NotifyModel
             {
+                Name = data,
                 NextStep = NotifyStep.Date,
                 NotifyId = Guid.NewGuid(),
-                ChatUserModel = new ChatUserModel()
+                ChatUserModel = new ChatUserModel(),
             };
 
             switch (model.NextStep)
@@ -65,6 +74,31 @@ namespace Services.Helpers
             }
 
             return UpdateState(model);
+        }
+
+        public NotifyModel Create(MessageEventArgs e)
+        {
+            var chatId = e.Message.Chat.Id;
+            var model = new NotifyModel
+            {
+                Name = e.Message.Text.Trim(),
+                NextStep = NotifyStep.Date,
+                NotifyId = Guid.NewGuid(),
+            };
+
+            if (_userCache.Users.TryGetValue(chatId, out var userModel))
+            {
+                model.ChatId = userModel.ChatId;
+            }
+            else
+            {
+                model.ChatUserModel = new ChatUserModel
+                {
+                    ChatId = chatId
+                };
+                model.ChatId = chatId;
+            }
+            return model;
         }
 
         private NotifyModel UpdateState(NotifyModel model)

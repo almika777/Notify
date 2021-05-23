@@ -53,12 +53,12 @@ namespace Notify.Workers
                         {
                             if (x.Value.Frequency != FrequencyType.Once)
                             {
-                                await bot.SendTextMessageAsync(x.Value.UserId, x.Value.ToTelegramChat(), ParseMode.Html);
+                                await bot.SendTextMessageAsync(x.Value.ChatId, x.Value.ToTelegramChat(), ParseMode.Html);
                                 x.Value.Date += x.Value.FrequencyTime;
                                 return;
                             }
 
-                            cache.ByUser[x.Value.UserId].Remove(x);
+                            cache.ByUser[x.Value.ChatId].Remove(x);
                             await remover.Remove(x.Value);
                         });
 

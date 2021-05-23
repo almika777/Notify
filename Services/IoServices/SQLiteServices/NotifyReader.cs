@@ -23,7 +23,7 @@ namespace Services.IoServices.SQLiteServices
         {
             var entities = await _context.Notifies
                 .AsNoTracking()
-                .Where(x => x.UserId == chatId)
+                .Where(x => x.ChatId == chatId)
                 .ToArrayAsync();
 
             return _mapper.Map<NotifyModel[]>(entities);
@@ -33,7 +33,7 @@ namespace Services.IoServices.SQLiteServices
         {
             var entity =  await _context.Notifies
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.NotifyId == notifyId && x.UserId == chatId);
+                .FirstOrDefaultAsync(x => x.NotifyId == notifyId && x.ChatId == chatId);
 
             return _mapper.Map<NotifyModel>(entity);
         }
