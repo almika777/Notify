@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using AutoMapper;
 using Common;
 using Context;
@@ -29,8 +30,7 @@ namespace Notify
 
         public static async Task Main(string[] args)
         {
-            var host = CreateHostBuilder("appsettings.json", args).Build();
-
+            var host = CreateHostBuilder(args).Build();
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -43,13 +43,12 @@ namespace Notify
             await host.RunAsync();
         }
 
-        public static IHostBuilder CreateHostBuilder(string configPath, params string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(builder => builder.AddJsonFile(configPath))
                 .ConfigureServices((hostContext, services) =>
                 {
                     Configure(hostContext, services);
-                    AddDbContext(services);
+                    AddDbContext(hostContext, services);
                     AddSingletonServices(services);
                     AddScopedServices(services);
 
@@ -57,10 +56,14 @@ namespace Notify
                 })
                 .UseSerilog();
 
-        public static void AddDbContext(IServiceCollection services)
+        public static void AddDbContext(HostBuilderContext hostContext, IServiceCollection services)
         {
-            var connectionString = $@"Data Source ={_config.DbPath};";
-            services.AddDbContext<NotifyDbContext>(options => options.UseSqlite(connectionString));
+            var dbPath = hostContext.Configuration.GetSection("Configuration").GetValue<string>("DbPath");
+            var connectionString = $@"Data Source ={dbPath};";
+            services.AddDbContext<NotifyDbContext>(options =>
+            {
+                options.UseSqlite(connectionString);
+            });
         }
 
         private static void Configure(HostBuilderContext hostContext, IServiceCollection services)
@@ -78,8 +81,8 @@ namespace Notify
 
             services.AddSingleton(mapperConfig.CreateMapper());
             services.AddSingleton(x => new TelegramBotClient(_config.TelegramToken));
-            services.AddSingleton<NotifyCacheService>();
             services.AddSingleton<UserCacheService>();
+            services.AddSingleton<NotifyCacheService>();
         }
 
         private static void AddScopedServices(IServiceCollection services)

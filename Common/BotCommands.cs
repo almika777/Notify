@@ -9,6 +9,8 @@
             public static class Admin
             {
                 public static string Members => "/members";
+                public static string GetDatabase => "/getdb";
+                public static string SetDatabase => "/setdb";
             }
         }
 

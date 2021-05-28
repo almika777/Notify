@@ -58,11 +58,11 @@ namespace Common.Models
         {
             var sb = new StringBuilder();
             sb.AppendLine($@"{Name}{Environment.NewLine}");
-            sb.AppendLine($@"<b>Когда</b>: {Date:g}");
+            sb.AppendLine($@"<b>Когда</b>: {Date:dd.MM.yyyy HH:mm}");
 
             if (Frequency == FrequencyType.Once) return sb.ToString();
 
-            sb.AppendLine($@"<b>Следующий раз</b>: {(Date + FrequencyTime):g}");
+            sb.AppendLine($@"<b>Следующий раз</b>: {(Date + FrequencyTime):dd.MM.yyyy HH:mm}");
             return sb.ToString();
         }
 

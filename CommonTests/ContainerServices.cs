@@ -1,26 +1,22 @@
-﻿using System;
-using System.Threading.Tasks;
-using Context;
-using Microsoft.Extensions.Configuration;
+﻿using Context;
 using Microsoft.Extensions.DependencyInjection;
 using Notify;
 using NUnit.Framework;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CommonTests
 {
     public class ContainerServices : BaseTest
     {
-        public ContainerServices()
-        {
-            SetProvider();
-        }
-
         protected IServiceProvider Services;
 
         [SetUp]
         protected void SetProvider()
         {
-            Services = Program.CreateHostBuilder("appsettings.json").Build().Services;
+            Directory.SetCurrentDirectory(@"C:\Users\xkang\source\repos\Notify\CommonTests");
+            Services = Program.CreateHostBuilder(null).Build().Services;
 
             var context = Services.GetRequiredService<NotifyDbContext>();
 

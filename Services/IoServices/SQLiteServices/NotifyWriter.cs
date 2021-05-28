@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services.IoServices.SQLiteServices
 {
-    public class NotifyWriter : INotifyWriter
+    public class NotifyWriter : BaseNotifySqlService, INotifyWriter
     {
         private readonly NotifyDbContext _context;
         private readonly IMapper _mapper;
@@ -21,8 +21,11 @@ namespace Services.IoServices.SQLiteServices
         public async Task Write(NotifyModel model)
         {
             var entity = _mapper.Map<Notify>(model);
+
             await _context.Notifies.AddAsync(entity);
             await _context.SaveChangesAsync();
+
+            DetachEntity(entity, _context);
         }
 
         public async Task Write(IEnumerable<NotifyModel> models)

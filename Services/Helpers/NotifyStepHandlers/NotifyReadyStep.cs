@@ -35,7 +35,7 @@ namespace Services.Helpers.NotifyStepHandlers
                 {
                     if (value.NotifyId == notifyModelModel.NotifyId)
                     {
-                        await _editor.Edit(chatId, notifyModelModel);
+                        await _editor.Edit(notifyModelModel);
                         _cache.EditCache.TryRemove(chatId, out _);
                     }
                 }

@@ -3,13 +3,13 @@ using Common.Enum;
 using Common.Models;
 using Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Services.Cache
 {
@@ -27,17 +27,17 @@ namespace Services.Cache
             new ConcurrentDictionary<long, NotifyModel>();
 
 
-        private readonly IServiceProvider _provider;
         private readonly IMapper _mapper;
         private readonly ILogger<NotifyCacheService> _logger;
+        private readonly IServiceProvider _provider;
         private readonly UserCacheService _userCache;
 
-        public NotifyCacheService(IServiceProvider provider, IMapper mapper, ILogger<NotifyCacheService> logger)
+        public NotifyCacheService(IServiceProvider provider, UserCacheService userCache, IMapper mapper, ILogger<NotifyCacheService> logger)
         {
             _provider = provider;
+            _userCache = userCache;
             _mapper = mapper;
             _logger = logger;
-            _userCache = provider.GetRequiredService<UserCacheService>();
         }
 
         public async Task Initialize()
@@ -48,22 +48,21 @@ namespace Services.Cache
             {
                 using (var scope = _provider.CreateScope())
                 {
-                    var context = scope.ServiceProvider.GetService<NotifyDbContext>();
-                    await using (context)
-                    {
-                        var models = await context!.Notifies.AsNoTracking().ToArrayAsync();
-                        var users = await context!.ChatUsers.AsNoTracking().ToArrayAsync();
-                        var modelsByUser = models.GroupBy(x => x.ChatId).ToDictionary(x => x.Key);
+                    var context = scope.ServiceProvider.GetRequiredService<NotifyDbContext>();
+                    var models = await context!.Notifies.AsNoTracking().ToArrayAsync();
+                    var users = await context!.ChatUsers.AsNoTracking().ToArrayAsync();
+                    var modelsByUser = models.GroupBy(x => x.ChatId).ToDictionary(x => x.Key);
 
-                        modelsByUser.AsParallel()
-                            .ForAll(pair => ByUser.TryAdd(pair.Key, pair.Value.ToDictionary(x => x.NotifyId, x => _mapper.Map<NotifyModel>(x))));
+                    modelsByUser.AsParallel()
+                        .ForAll(pair => ByUser.TryAdd(pair.Key,
+                            pair.Value.ToDictionary(x => x.NotifyId, x => _mapper.Map<NotifyModel>(x))));
 
-                        users.AsParallel()
-                            .ForAll(user => _userCache.Users.TryAdd(user.ChatId, new ChatUserModel { ChatId = user.ChatId }));
-                    }
+                    users.AsParallel()
+                        .ForAll(user => _userCache.Users.TryAdd(user.ChatId, new ChatUserModel { ChatId = user.ChatId }));
                 }
 
                 IsInitialized = true;
+
             }
             catch (Exception e)
             {

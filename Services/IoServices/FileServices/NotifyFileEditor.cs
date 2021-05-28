@@ -52,5 +52,10 @@ namespace Services.IoServices.FileServices
                 return false;
             }
         }
+
+        public Task<bool> Edit(NotifyModel model)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

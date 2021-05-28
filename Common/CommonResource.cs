@@ -11,6 +11,7 @@
             "dd/MM/yyyy",
             "dd.MM.yyyy HH:mm",
             "dd.MM.yyyy HH:mm",
+            "dd.MM.yyyy HH.mm",
             "HH:mm",
         };
     }

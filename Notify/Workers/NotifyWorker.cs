@@ -1,4 +1,5 @@
 ﻿using Common.Enum;
+using Common.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,7 @@ using Services;
 using Services.Cache;
 using Services.IoServices;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -32,6 +34,7 @@ namespace Notify.Workers
 
             var bot = scope.ServiceProvider.GetService<TelegramBotClient>()!;
             var remover = scope.ServiceProvider.GetService<INotifyRemover>()!;
+            var editor = scope.ServiceProvider.GetService<INotifyEditor>()!;
             var cache = scope.ServiceProvider.GetRequiredService<NotifyCacheService>();
 
             await cache.Initialize();
@@ -43,8 +46,7 @@ namespace Notify.Workers
                 {
                     var notifications = cache.ByUser
                         .SelectMany(x => x.Value)
-                        .Where(x =>
-                            (x.Value.Date - DateTimeOffset.Now).TotalSeconds < 30)
+                        .Where(x => x.Value.Date.Subtract(DateTimeOffset.UtcNow).TotalSeconds < 30)
                         .ToImmutableArray();
 
                     if (notifications.Any())
@@ -53,18 +55,17 @@ namespace Notify.Workers
                         {
                             if (x.Value.Frequency != FrequencyType.Once)
                             {
-                                await bot.SendTextMessageAsync(x.Value.ChatId, x.Value.ToTelegramChat(), ParseMode.Html);
-                                x.Value.Date += x.Value.FrequencyTime;
+                                await Update(x, bot, editor);
                                 return;
                             }
 
+                            await bot.SendTextMessageAsync(x.Value.ChatId, x.Value.ToTelegramChat(), ParseMode.Html);
                             cache.ByUser[x.Value.ChatId].Remove(x);
                             await remover.Remove(x.Value);
                         });
 
                         await Task.WhenAll(tasks);
                     }
-
 
                     await Task.Delay(TimeSpan.FromSeconds(30));
                 }
@@ -73,6 +74,14 @@ namespace Notify.Workers
             {
                 _logger.LogError(e, "Упс");
             }
+        }
+
+        private async Task Update(KeyValuePair<Guid, NotifyModel> model, ITelegramBotClient bot, INotifyEditor editor)
+        {
+            model.Value.Date += model.Value.FrequencyTime;
+
+            await bot.SendTextMessageAsync(model.Value.ChatId, model.Value.ToTelegramChat(), ParseMode.Html);
+            await editor.Edit(model.Value);
         }
 
         private void StartBot(IServiceScope serviceScope)

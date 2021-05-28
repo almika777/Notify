@@ -54,7 +54,7 @@ namespace Services.Helpers
                 case NotifyStep.Date:
                     model.Date = DateTimeOffset
                         .TryParseExact(data, CommonResource.DateFormats, new DateTimeFormatInfo(), DateTimeStyles.None, out var date)
-                        ? date
+                        ? date.ToUniversalTime()
                         : throw new FormatException("Неверный формат даты");
                     break;
                 case NotifyStep.Frequency:
@@ -97,6 +97,8 @@ namespace Services.Helpers
                     ChatId = chatId
                 };
                 model.ChatId = chatId;
+
+                _userCache.Users.TryAdd(chatId, model.ChatUserModel);
             }
             return model;
         }

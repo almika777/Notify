@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B20BEFFC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Context", "Context\Context.csproj", "{AE964C1D-5E37-4F95-854B-B70548218069}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceTests", "ServiceTests\ServiceTests.csproj", "{14A43C33-6773-4113-BDE5-66DCC77FD170}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceTests", "ServiceTests\ServiceTests.csproj", "{14A43C33-6773-4113-BDE5-66DCC77FD170}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

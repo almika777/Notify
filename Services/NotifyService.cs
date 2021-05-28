@@ -1,5 +1,6 @@
 ﻿using Common;
 using Common.Enum;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Services.Cache;
 using Services.Commands.OnCallbackQuery;
@@ -9,7 +10,6 @@ using Services.Helpers.NotifyStepHandlers;
 using Services.IoServices;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 
@@ -69,16 +69,18 @@ namespace Services
 
         private async Task<bool> CommandsProcessing(MessageEventArgs e, long chatId)
         {
-            if (_messageCommandRepository.IsCommand(e.Message.Text))
+            var key = e.Message.Text ?? e.Message.Caption;
+
+            if (_messageCommandRepository.IsCommand(key))
             {
-                await _messageCommandRepository.Execute(e.Message.Text, chatId);
+                await _messageCommandRepository.Execute(key, chatId);
                 return true;
             }
 
-            if (!_messageCommandRepository.IsAdminCommand(e.Message.Text) || CommonResource.AdminId != 285783010)
+            if (!_messageCommandRepository.IsAdminCommand(key) || CommonResource.AdminId != 285783010)
                 return false;
 
-            await _messageCommandRepository.AdminExecute(e.Message.Text, chatId);
+            await _messageCommandRepository.AdminExecute(key, e);
 
             return true;
         }
@@ -118,7 +120,7 @@ namespace Services
                     await _bot.SendTextMessageAsync(chatId, "Все гуд");
                 }
 
-                return await _editor.Edit(chatId, editedModel!);
+                return await _editor.Edit(editedModel!);
             }
             catch (Exception exception)
             {

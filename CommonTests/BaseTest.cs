@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Common.Enum;
 using Common.Models;
+using Notify;
 
 namespace CommonTests
 {
@@ -18,6 +19,26 @@ namespace CommonTests
             var result = new List<NotifyModel> { GetDefaultModel(userId) };
 
             for (int i = 0; i < rand; i++)
+            {
+                result.Add(new NotifyModel
+                {
+                    Date = DateTimeOffset.Now,
+                    Name = "test" + i,
+                    Frequency = FrequencyType.Once,
+                    FrequencyTime = TimeSpan.FromMinutes(1),
+                    NotifyId = Guid.NewGuid(),
+                    ChatId = userId
+                });
+            }
+
+            return result;
+        }
+
+        protected IEnumerable<NotifyModel> GetDefaultManyModels(int count, long userId = 1)
+        {
+            var result = new List<NotifyModel> { GetDefaultModel(userId) };
+
+            for (int i = 0; i < count; i++)
             {
                 result.Add(new NotifyModel
                 {
